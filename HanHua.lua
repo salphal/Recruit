@@ -409,22 +409,30 @@ local function HanHuaUI()
         f:SetClampedToScreen(true)
         HH.FrameEdit = f
 
-        local preview = f:CreateFontString(nil, "ARTWORK")
-        preview:SetPoint("TOPLEFT", 5, -5)
-        preview:SetPoint("TOPRIGHT", -5, -5)
-        preview:SetHeight(100)
-        preview:SetFontObject(GameFontNormalSmall2)
-        preview:SetTextColor(0, 1, 0)
-        preview:SetJustifyH("LEFT")
-        preview:SetJustifyV("TOP")
-        preview:SetSpacing(2)
-        preview:SetWordWrap(true)
-        preview:SetNonSpaceWrap(true)
+        local previewLabel = f:CreateFontString(nil, "ARTWORK")
+        previewLabel:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -5)
+        previewLabel:SetHeight(14)
+        previewLabel:SetFontObject(GameFontNormalSmall2)
+        previewLabel:SetTextColor(0, 1, 0)
+        previewLabel:SetJustifyH("LEFT")
+
+        local previewContent = f:CreateFontString(nil, "ARTWORK")
+        previewContent:SetPoint("TOPLEFT", previewLabel, "BOTTOMLEFT", 0, -2)
+        previewContent:SetPoint("TOPRIGHT", f, "TOPRIGHT", -5, 0)
+        previewContent:SetHeight(80)
+        previewContent:SetFontObject(GameFontNormalSmall2)
+        previewContent:SetTextColor(0, 1, 0)
+        previewContent:SetJustifyH("LEFT")
+        previewContent:SetJustifyV("TOP")
+        previewContent:SetSpacing(2)
+        previewContent:SetWordWrap(true)
+        previewContent:SetNonSpaceWrap(true)
 
         local function UpdatePreview()
             if not HH.editPrefix or not HH.editMiddle or not HH.editSuffix then return end
             local t = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText()):match("^%-*(.-)%-*$"):gsub("%-+", "-")
-            preview:SetText("最终:\n" .. t)
+            previewContent:SetText(t)
+            previewLabel:SetText("最终:(" .. #t .. ")")
         end
 
         local function MakeEditBox(anchor, label, field, max, dbField, rows, yOff)
@@ -478,7 +486,7 @@ local function HanHuaUI()
             return edit
         end
 
-        local last = preview
+        local last = previewContent
         last = MakeEditBox(last, "活动", "editPrefix", PREFIX_MAX, "editPrefix", 2)
         -- 保存为模版按钮
         do

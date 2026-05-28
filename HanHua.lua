@@ -288,7 +288,7 @@ local function HanHuaUI()
         HH.FrameEdit = f
 
         local previewLabel = f:CreateFontString(nil, "ARTWORK")
-        previewLabel:SetPoint("TOPLEFT", f, "TOPLEFT", 5, -5)
+        previewLabel:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -10)
         previewLabel:SetHeight(14)
         previewLabel:SetFontObject(GameFontNormalSmall2)
         previewLabel:SetTextColor(0, 1, 0)
@@ -296,7 +296,7 @@ local function HanHuaUI()
 
         local previewContent = f:CreateFontString(nil, "ARTWORK")
         previewContent:SetPoint("TOPLEFT", previewLabel, "BOTTOMLEFT", 0, -2)
-        previewContent:SetPoint("TOPRIGHT", f, "TOPRIGHT", -5, 0)
+        previewContent:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, 0)
         previewContent:SetHeight(80)
         previewContent:SetFontObject(GameFontNormalSmall2)
         previewContent:SetTextColor(0, 1, 0)
@@ -328,7 +328,7 @@ local function HanHuaUI()
 
             local edit = CreateFrame("EditBox", nil, f)
             edit:SetPoint("TOPLEFT", lab, "BOTTOMLEFT", 0, -2)
-            edit:SetPoint("TOPRIGHT", -6, 0)
+            edit:SetPoint("TOPRIGHT", -10, 0)
             edit:SetHeight(editH)
             edit:SetJustifyH("LEFT")
             edit:SetMaxBytes(max + 1)
@@ -364,15 +364,38 @@ local function HanHuaUI()
             return edit
         end
 
-        local last = previewContent
-        last = MakeEditBox(last, "G团信息", "editGtuan", HH.GTUAN_MAX, "editGtuan", 1)
-        -- 保存G团模版按钮
+        -- 灰色分割线
+        local sep = f:CreateTexture(nil, "ARTWORK")
+        sep:SetColorTexture(0.4, 0.4, 0.4, 0.6)
+        sep:SetPoint("TOPLEFT", previewContent, "BOTTOMLEFT", 0, -6)
+        sep:SetPoint("TOPRIGHT", previewContent, "BOTTOMRIGHT", 0, -6)
+        sep:SetHeight(1)
+
+        local sepAnchor = CreateFrame("Frame", nil, f)
+        sepAnchor:SetSize(1, 1)
+        sepAnchor:SetPoint("TOPLEFT", sep, "BOTTOMLEFT", 0, -4)
+
+        local last = sepAnchor
+        last = MakeEditBox(last, "重要", "editGtuan", HH.GTUAN_MAX, "editGtuan", 1)
+        -- 保存G团模版 + 清空按钮
         do
-            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
-            btn:SetSize(60, 14)
-            btn:SetText("存模版")
-            btn:SetPoint("LEFT", HH.editGtuan._label, "RIGHT", 4, 0)
-            btn:SetScript("OnClick", function()
+            local clearBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            clearBtn:SetSize(40, 14)
+            clearBtn:SetText("清空")
+            clearBtn:SetPoint("RIGHT", f, "RIGHT", -10, 0)
+            clearBtn:SetPoint("TOP", HH.editGtuan._label, "TOP", 0, 0)
+            clearBtn:SetScript("OnClick", function()
+                HH.editGtuan:SetText("")
+                HHdb.editGtuan = ""
+                UpdatePreview()
+                PlaySound(HH.sound1)
+            end)
+            local saveBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            saveBtn:SetSize(60, 14)
+            saveBtn:SetText("存模版")
+            saveBtn:SetPoint("RIGHT", clearBtn, "LEFT", -2, 0)
+            saveBtn:SetPoint("TOP", HH.editGtuan._label, "TOP", 0, 0)
+            saveBtn:SetScript("OnClick", function()
                 local text = HH.editGtuan:GetText()
                 if text == "" then
                     SendSystemMessage("G团信息为空，无法保存")
@@ -392,13 +415,25 @@ local function HanHuaUI()
             end)
         end
         last = MakeEditBox(last, "活动", "editPrefix", HH.PREFIX_MAX, "editPrefix", 2)
-        -- 保存活动模版按钮
+        -- 保存活动模版 + 清空按钮
         do
-            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
-            btn:SetSize(60, 14)
-            btn:SetText("存模版")
-            btn:SetPoint("LEFT", HH.editPrefix._label, "RIGHT", 4, 0)
-            btn:SetScript("OnClick", function()
+            local clearBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            clearBtn:SetSize(40, 14)
+            clearBtn:SetText("清空")
+            clearBtn:SetPoint("RIGHT", f, "RIGHT", -10, 0)
+            clearBtn:SetPoint("TOP", HH.editPrefix._label, "TOP", 0, 0)
+            clearBtn:SetScript("OnClick", function()
+                HH.editPrefix:SetText("")
+                HHdb.editPrefix = ""
+                UpdatePreview()
+                PlaySound(HH.sound1)
+            end)
+            local saveBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            saveBtn:SetSize(60, 14)
+            saveBtn:SetText("存模版")
+            saveBtn:SetPoint("RIGHT", clearBtn, "LEFT", -2, 0)
+            saveBtn:SetPoint("TOP", HH.editPrefix._label, "TOP", 0, 0)
+            saveBtn:SetScript("OnClick", function()
                 local text = HH.editPrefix:GetText()
                 if text == "" then
                     SendSystemMessage("活动内容为空，无法保存")
@@ -417,9 +452,48 @@ local function HanHuaUI()
                 end
             end)
         end
-        last = MakeEditBox(last, "团补信息", "editTuanbu", HH.TUANBU_MAX, "editTuanbu", 1)
+        last = MakeEditBox(last, "团补", "editTuanbu", HH.TUANBU_MAX, "editTuanbu", 1)
+        do
+            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            btn:SetSize(40, 14)
+            btn:SetText("清空")
+            btn:SetPoint("RIGHT", f, "RIGHT", -10, 0)
+            btn:SetPoint("TOP", HH.editTuanbu._label, "TOP", 0, 0)
+            btn:SetScript("OnClick", function()
+                HH.editTuanbu:SetText("")
+                HHdb.editTuanbu = ""
+                UpdatePreview()
+                PlaySound(HH.sound1)
+            end)
+        end
         last = MakeEditBox(last, "职业", "editMiddle", HH.MIDDLE_MAX, "editMiddle", 4)
+        do
+            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            btn:SetSize(40, 14)
+            btn:SetText("清空")
+            btn:SetPoint("RIGHT", f, "RIGHT", -10, 0)
+            btn:SetPoint("TOP", HH.editMiddle._label, "TOP", 0, 0)
+            btn:SetScript("OnClick", function()
+                HH.editMiddle:SetText("")
+                HHdb.editMiddle = ""
+                UpdatePreview()
+                PlaySound(HH.sound1)
+            end)
+        end
         last = MakeEditBox(last, "备注", "editSuffix", HH.SUFFIX_MAX, "editSuffix", 2)
+        do
+            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            btn:SetSize(40, 14)
+            btn:SetText("清空")
+            btn:SetPoint("RIGHT", f, "RIGHT", -10, 0)
+            btn:SetPoint("TOP", HH.editSuffix._label, "TOP", 0, 0)
+            btn:SetScript("OnClick", function()
+                HH.editSuffix:SetText("")
+                HHdb.editSuffix = ""
+                UpdatePreview()
+                PlaySound(HH.sound1)
+            end)
+        end
 
         f:SetScript("OnMouseDown", function(self)
             HH.editGtuan:SetFocus()

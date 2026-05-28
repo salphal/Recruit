@@ -4,7 +4,7 @@ local AddonName, ADDONSELF = ...
 
 HH.activeTab = 1
 HH.tabDefs = {
-    { key = "gtuan",   name = "G团" },
+    { key = "gtuan",   name = "重要" },
     { key = "prefix",  name = "活动" },
     { key = "tuanbu",  name = "团补" },
     { key = "content", name = "职业" },

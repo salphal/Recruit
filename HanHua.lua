@@ -135,12 +135,12 @@ local function HanHuaUI()
             bt:SetScript("OnLeave", GameTooltip_Hide)
         end
 
-        -- 清空内容
+        -- 清空
         do
             local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
-            bt:SetSize(80, 20)
+            bt:SetSize(40, 20)
             bt:SetPoint("LEFT", HH.button.send, "RIGHT", 3, 0)
-            bt:SetText("清空内容")
+            bt:SetText("清空")
             bt:SetClampedToScreen(true)
             bt:SetScript("OnClick", function()
                 HH.editGtuan:SetText("")
@@ -166,11 +166,47 @@ local function HanHuaUI()
             HH.button.clear = bt
         end
 
+        -- 复制
+        do
+            local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
+            bt:SetSize(40, 20)
+            bt:SetPoint("LEFT", HH.button.clear, "RIGHT", 3, 0)
+            bt:SetText("复制")
+            bt:SetClampedToScreen(true)
+            bt:SetScript("OnClick", function()
+                if not HH.editGtuan or not HH.editPrefix or not HH.editTuanbu or not HH.editMiddle or not HH.editSuffix then return end
+                local text = (HH.editGtuan:GetText() .. "-" .. HH.editPrefix:GetText() .. "-" .. HH.editTuanbu:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText()):match("^%-*(.-)%-*$"):gsub("%-+", "-")
+                if text == "" then
+                    SendSystemMessage("当前内容为空，无法复制")
+                    return
+                end
+                local eb = CreateFrame("EditBox", nil, UIParent)
+                eb:SetWidth(1)
+                eb:SetHeight(1)
+                eb:SetPoint("CENTER", -5000, -5000)
+                eb:SetAutoFocus(false)
+                eb:SetText(text)
+                eb:Show()
+                eb:SetFocus()
+                eb:HighlightText()
+                PlaySound(HH.sound1)
+                SendSystemMessage("已复制最终内容，按 Ctrl+C 复制")
+            end)
+            bt:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT", 0, 0)
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine("复制最终内容到剪贴板", 1, 1, 1)
+                GameTooltip:Show()
+            end)
+            bt:SetScript("OnLeave", GameTooltip_Hide)
+            HH.button.copy = bt
+        end
+
         -- 清空历史
         do
             local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
             bt:SetSize(80, 20)
-            bt:SetPoint("LEFT", HH.button.clear, "RIGHT", 3, 0)
+            bt:SetPoint("LEFT", HH.button.copy, "RIGHT", 3, 0)
             bt:SetText("清空历史")
             bt:SetClampedToScreen(true)
             bt:SetScript("OnClick", function()

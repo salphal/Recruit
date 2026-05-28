@@ -6,4 +6,9 @@
 
 HanHua_Config.lua
 HanHua_QuickInput.lua
+HanHua_Util.lua
+HanHua_Channels.lua
+HanHua_Send.lua
+HanHua_History.lua
+HanHua_QuickPanel.lua
 HanHua.lua

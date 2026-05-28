@@ -1,178 +1,6 @@
+-- HanHua.lua - 主入口 / 界面构建
+-- 依赖: HanHua_Util, HanHua_Channels, HanHua_Send, HanHua_History, HanHua_QuickPanel
 local AddonName, ADDONSELF = ...
-
-local pt                   = print
-local GetAddOnMetadata     = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
-local IsAddOnLoaded        = IsAddOnLoaded or C_AddOns.IsAddOnLoaded
-local LoadAddOn            = LoadAddOn or C_AddOns.LoadAddOn
-
-BINDING_HEADER_HANHUA      = "HanHua喊话助手"
-BINDING_NAME_FASONG        = "发送喊话"
-
-HH                         = {}
-HH.button                  = {}
-HH.sound1                  = SOUNDKIT.GS_TITLE_OPTION_OK
-
-HH.MAX_HISTORY             = 15
-HH.SendColdTime            = 20
-
--- 从 HanHua_Config.lua 读取配置, 无配置使用默认值
-local PREFIX_MAX           = (type(HH_config) == "table" and HH_config.prefix_max) or 40
-local MIDDLE_MAX           = (type(HH_config) == "table" and HH_config.middle_max) or 100
-local SUFFIX_MAX           = (type(HH_config) == "table" and HH_config.suffix_max) or 20
-local FRAME_WIDTH          = (type(HH_config) == "table" and HH_config.frame_width) or 325
-local FRAME_HEIGHT         = (type(HH_config) == "table" and HH_config.frame_height) or 330
-local QI_HEIGHT            = (type(HH_config) == "table" and HH_config.qi_height) or 325
-local maxBytes             = PREFIX_MAX + MIDDLE_MAX + SUFFIX_MAX
-
-HH.ver                     = "v" .. GetAddOnMetadata(AddonName, "Version")
-
--- 更新内容
-do
-    HH.update = {
-        [[|cff00ff004月9日更新1.1.2版本]],
-        [[喊话最大字符数从128增加至168]],
-        [[适配时光服3.80.1]],
-    }
-end
-
-local function Size(t)
-    local s = 0
-    for k, v in pairs(t) do
-        if v ~= nil then s = s + 1 end
-    end
-    return s
-end
-
-local function RGB(hex)
-    local red = string.sub(hex, 1, 2)
-    local green = string.sub(hex, 3, 4)
-    local blue = string.sub(hex, 5, 6)
-
-    red = tonumber(red, 16) / 255
-    green = tonumber(green, 16) / 255
-    blue = tonumber(blue, 16) / 255
-    return red, green, blue
-end
-
-local size = 12
-local Green1 = "Green1" -- HH.FontGreen1
-HH["Font" .. Green1] = CreateFont("HH.Font" .. Green1)
-HH["Font" .. Green1]:SetTextColor(RGB("00FF00"))
-HH["Font" .. Green1]:SetFont(STANDARD_TEXT_FONT, size, "OUTLINE")
-
-HH.FontDisabled = CreateFont("HH.FontDisabled")
-HH.FontDisabled:SetTextColor(RGB("808080"))
-HH.FontDisabled:SetFont(STANDARD_TEXT_FONT, size, "OUTLINE")
-
-HH.FontHilight = CreateFont("HH.FontHilight")
-HH.FontHilight:SetTextColor(RGB("FFFFFF"))
-HH.FontHilight:SetFont(STANDARD_TEXT_FONT, size, "OUTLINE")
-
-function HH.GetChannels()
-    HH.channels = {}
-    for _, v in pairs(HHdb.channels) do
-        if v.yell then
-            v.join = true
-        else
-            v.join = nil
-        end
-    end
-    local channels = { GetChannelList() }
-    for i = 1, #channels, 3 do
-        if channels[i + 1] ~= "MeetingHorn" and channels[i + 1] ~= "BiaoGeYY" then
-            local a = {
-                channelID = channels[i],
-                name = channels[i + 1],
-                disabled = channels[i + 2],
-            }
-            tinsert(HH.channels, a)
-            for name in pairs(HHdb.channels) do
-                if name == a.name then
-                    HHdb.channels[name] = { channelID = a.channelID, join = true }
-                end
-            end
-        end
-    end
-end
-
-local lastText
-function HH.Send()
-    local bt = HH.button.send
-    if not bt:IsEnabled() then return end
-    if not next(HHdb.channels) then return end
-    local text = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText())
-        :match("^%-*(.-)%-*$"):gsub("%-+", "-")
-    if text == "" then
-        SendSystemMessage("当前喊话内容为空")
-        return
-    end
-    local hasChannel
-    for _, v in pairs(HHdb.channels) do
-        if v.join then
-            if v.yell then
-                SendChatMessage(text, "YELL")
-            else
-                SendChatMessage(text, "CHANNEL", nil, v.channelID)
-            end
-            hasChannel = true
-        end
-    end
-    if hasChannel then
-        bt:SetEnabled(false)
-        bt.timeElapsed = 0
-        bt:SetScript("OnUpdate", function(self, elapsed)
-            self.timeElapsed = self.timeElapsed + elapsed
-            self:SetText(HH.SendColdTime - format("%d", self.timeElapsed))
-            if self.timeElapsed >= HH.SendColdTime then
-                self:SetEnabled(true)
-                self:SetText("发送")
-                self:SetScript("OnUpdate", nil)
-                if HHdb.auto then
-                    C_Timer.After(0, HH.Send)
-                end
-            end
-        end)
-    end
-
-    local historyItem = { p = HH.editPrefix:GetText(), m = HH.editMiddle:GetText(), s = HH.editSuffix:GetText() }
-    local isNewText = true
-    for _, entry in ipairs(HHdb.history) do
-        local et = type(entry) == "table" and (entry.p or "") .. (entry.m or "") .. (entry.s or "") or entry
-        if et == text then
-            isNewText = false
-            break
-        end
-    end
-    if isNewText then
-        tinsert(HHdb.history, 1, historyItem)
-    end
-    for i = #HHdb.history, 1, -1 do
-        if i > HH.MAX_HISTORY then
-            tremove(HHdb.history, i)
-        end
-    end
-    HH.UpdateHistoryList()
-    HH.editPrefix:ClearFocus()
-    HH.editMiddle:ClearFocus()
-    HH.editSuffix:ClearFocus()
-    PlaySound(HH.sound1)
-
-    -- 同时修改集结号的活动说明
-    local addonName = "MeetingHorn"
-    if IsAddOnLoaded(addonName) then
-        local MeetingHorn = LibStub("AceAddon-3.0"):GetAddon("MeetingHorn")
-        local Manage = MeetingHorn.MainPanel.Manage.Creator
-        Manage.Comment:SetMaxBytes(maxBytes)
-        Manage.Comment:SetText(text)
-        local newText = Manage.Comment:GetText()
-        if newText ~= lastText then
-            if Manage.Activity:GetValue() then
-                Manage:OnCreateClick()
-            end
-        end
-        lastText = newText
-    end
-end
 
 local function HanHuaUI()
     HHdb = HHdb or {}
@@ -194,6 +22,7 @@ local function HanHuaUI()
     end
     HHdb.edit = nil
 
+    -- 去重
     local same = {}
     for ii, text1 in ipairs(HHdb.history) do
         if not same[ii] then
@@ -217,12 +46,15 @@ local function HanHuaUI()
     HH.MainFrame:SetMovable(true)
     HH.MainFrame:SetToplevel(true)
     HH.MainFrame:SetClampedToScreen(true)
+
     HH.Frame2 = CreateFrame("Frame", nil, HH.MainFrame)
     if HHdb.Frame2 == "Hide" then
         HH.Frame2:Hide()
     end
 
-    do -- 按钮
+    -- 按钮
+    do
+        -- ★ 主按钮
         local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
         bt:SetSize(30, 20)
         bt:SetPoint("BOTTOMLEFT")
@@ -271,35 +103,37 @@ local function HanHuaUI()
             self.OnEnter = false
             GameTooltip:Hide()
         end)
-        local frame = CreateFrame("Frame")
-        frame:RegisterEvent("MODIFIER_STATE_CHANGED")
-        frame:SetScript("OnEvent", function(self, event, enter)
+        local modFrame = CreateFrame("Frame")
+        modFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+        modFrame:SetScript("OnEvent", function(self, event, enter)
             if (enter == "LALT" or enter == "RALT") and bt.OnEnter then
                 OnEnter(bt)
             end
         end)
 
         -- 发送
-        local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
-        bt:SetSize(40, 20)
-        bt:SetPoint("LEFT", HH.button.main, "RIGHT", 3, 0)
-        bt:SetText("发送")
-        bt:SetClampedToScreen(true)
-        HH.button.send = bt
-        bt:SetScript("OnClick", function(self)
-            HH.Send()
-        end)
-        bt:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(HH.button.main, "ANCHOR_LEFT", 0, 0)
-            GameTooltip:ClearLines()
-            GameTooltip:AddLine("发送喊话", 1, 1, 1)
-            GameTooltip:AddLine("快捷命令：/fasong", 1, .82, 0, true)
-            GameTooltip:AddLine("游戏按键设置也可绑定快捷键。", 1, .82, 0, true)
-            GameTooltip:Show()
-        end)
-        bt:SetScript("OnLeave", GameTooltip_Hide)
+        do
+            local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
+            bt:SetSize(40, 20)
+            bt:SetPoint("LEFT", HH.button.main, "RIGHT", 3, 0)
+            bt:SetText("发送")
+            bt:SetClampedToScreen(true)
+            HH.button.send = bt
+            bt:SetScript("OnClick", function(self)
+                HH.Send()
+            end)
+            bt:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(HH.button.main, "ANCHOR_LEFT", 0, 0)
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine("发送喊话", 1, 1, 1)
+                GameTooltip:AddLine("快捷命令：/fasong", 1, .82, 0, true)
+                GameTooltip:AddLine("游戏按键设置也可绑定快捷键。", 1, .82, 0, true)
+                GameTooltip:Show()
+            end)
+            bt:SetScript("OnLeave", GameTooltip_Hide)
+        end
 
-        -- 清空
+        -- 清空内容
         do
             local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
             bt:SetSize(80, 20)
@@ -395,7 +229,8 @@ local function HanHuaUI()
         bt:SetScript("OnLeave", GameTooltip_Hide)
     end
 
-    do -- 输入框
+    -- 输入框
+    do
         local f = CreateFrame("Frame", nil, HH.Frame2, "BackdropTemplate")
         f:SetBackdrop({
             bgFile = "Interface/ChatFrame/ChatFrameBackground",
@@ -404,7 +239,7 @@ local function HanHuaUI()
             insets = { left = 2, right = 2, top = 2, bottom = 2 }
         })
         f:SetBackdropColor(0, 0, 0, 0.8)
-        f:SetSize(FRAME_WIDTH, FRAME_HEIGHT)
+        f:SetSize(HH.FRAME_WIDTH, HH.FRAME_HEIGHT)
         f:SetPoint("BOTTOMLEFT", HH.button.send, "TOPLEFT", 0, 3)
         f:SetClampedToScreen(true)
         HH.FrameEdit = f
@@ -487,7 +322,7 @@ local function HanHuaUI()
         end
 
         local last = previewContent
-        last = MakeEditBox(last, "活动", "editPrefix", PREFIX_MAX, "editPrefix", 2)
+        last = MakeEditBox(last, "活动", "editPrefix", HH.PREFIX_MAX, "editPrefix", 2)
         -- 保存为模版按钮
         do
             local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
@@ -500,7 +335,6 @@ local function HanHuaUI()
                     SendSystemMessage("活动内容为空，无法保存")
                     return
                 end
-                -- 检查是否已存在
                 for _, t in ipairs(HHdb.savedTemplates) do
                     if t == text then
                         SendSystemMessage("该模版已存在")
@@ -509,14 +343,13 @@ local function HanHuaUI()
                 end
                 tinsert(HHdb.savedTemplates, text)
                 SendSystemMessage("已保存模版: " .. text)
-                -- 如果当前在活动 tab，刷新列表
-                if activeTab and tabDefs and tabDefs[activeTab] and tabDefs[activeTab].key == "prefix" then
+                if HH.activeTab and HH.tabDefs and HH.tabDefs[HH.activeTab] and HH.tabDefs[HH.activeTab].key == "prefix" then
                     RefreshQuickInput(HH_QuickInput)
                 end
             end)
         end
-        last = MakeEditBox(last, "职业", "editMiddle", MIDDLE_MAX, "editMiddle", 4)
-        last = MakeEditBox(last, "备注", "editSuffix", SUFFIX_MAX, "editSuffix", 2)
+        last = MakeEditBox(last, "职业", "editMiddle", HH.MIDDLE_MAX, "editMiddle", 4)
+        last = MakeEditBox(last, "备注", "editSuffix", HH.SUFFIX_MAX, "editSuffix", 2)
 
         f:SetScript("OnMouseDown", function(self)
             HH.editMiddle:SetFocus()
@@ -525,458 +358,16 @@ local function HanHuaUI()
         UpdatePreview()
     end
 
-    do -- 频道
-        HH.button.channel = {}
-
-        function HH.UpdateChannel()
-            HH.GetChannels()
-
-            for _, bt in ipairs(HH.button.channel) do
-                bt:Hide()
-            end
-            wipe(HH.button.channel)
-            local right
-
-            local function CreateButton(v)
-                local bt = CreateFrame("CheckButton", nil, HH.Frame2, "ChatConfigCheckButtonTemplate")
-                bt:SetSize(25, 25)
-                bt:SetPoint("LEFT", right or HH.button.send, right and "RIGHT" or "BOTTOMLEFT", right and 10 or 3, right and 0 or -18)
-                bt.Text:SetPoint("LEFT", bt, "RIGHT", -2, 0)
-                bt.Text:SetText(v.channelID)
-                bt:SetHitRectInsets(0, -10, 0, 0)
-                bt.channelData = v
-                tinsert(HH.button.channel, bt)
-                right = bt
-
-                if v.disabled then
-                    bt.Text:SetTextColor(0.5, 0.5, 0.5)
-                end
-                for name in pairs(HHdb.channels) do
-                    if name == v.name then
-                        bt:SetChecked(true)
-                        break
-                    end
-                end
-
-                bt:SetScript("OnClick", function(self)
-                    local name = v.name
-                    if self:GetChecked() then
-                        HHdb.channels[name] = { channelID = v.channelID, join = true, yell = v.yell }
-                    else
-                        HHdb.channels[name] = nil
-                    end
-                    PlaySound(HH.sound1)
-                end)
-                bt:SetScript("OnEnter", function(self)
-                    GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
-                    GameTooltip:ClearLines()
-                    if v.disabled then
-                        GameTooltip:AddLine(v.name, .5, .5, .5, true)
-                    else
-                        GameTooltip:AddLine(v.name, 1, 1, 1, true)
-                    end
-                    GameTooltip:Show()
-                end)
-                bt:SetScript("OnLeave", GameTooltip_Hide)
-            end
-            -- All
-            do
-                local bt = CreateFrame("CheckButton", nil, HH.Frame2, "ChatConfigCheckButtonTemplate")
-                bt:SetSize(25, 25)
-                bt:SetPoint("LEFT", right or HH.button.send, right and "RIGHT" or "BOTTOMLEFT", right and 10 or 3, right and 0 or -18)
-                bt.Text:SetPoint("LEFT", bt, "RIGHT", -2, 0)
-                bt.Text:SetText("A")
-                bt.Text:SetTextColor(1, 0.82, 0)
-                bt:SetHitRectInsets(0, -10, 0, 0)
-                tinsert(HH.button.channel, bt)
-                right = bt
-                bt:SetScript("OnClick", function(self)
-                    local checked = self:GetChecked()
-                    for _, channelBt in ipairs(HH.button.channel) do
-                        if channelBt ~= self and channelBt.channelData then
-                            channelBt:SetChecked(checked)
-                            local v = channelBt.channelData
-                            if checked then
-                                HHdb.channels[v.name] = { channelID = v.channelID, join = true, yell = v.yell }
-                            else
-                                HHdb.channels[v.name] = nil
-                            end
-                        end
-                    end
-                    PlaySound(HH.sound1)
-                end)
-                bt:SetScript("OnEnter", function(self)
-                    GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
-                    GameTooltip:ClearLines()
-                    GameTooltip:AddLine("选择全部频道", 1, 1, 1)
-                    GameTooltip:Show()
-                end)
-                bt:SetScript("OnLeave", GameTooltip_Hide)
-            end
-
-            CreateButton({ channelID = "Y", name = "大喊", yell = true })
-
-            for _, v in ipairs(HH.channels) do
-                CreateButton(v)
-            end
-
-            -- 设置 All 初始勾选状态
-            local allChecked = true
-            for _, bt in ipairs(HH.button.channel) do
-                if bt.channelData and not bt:GetChecked() then
-                    allChecked = false
-                    break
-                end
-            end
-            HH.button.channel[1]:SetChecked(allChecked)
-        end
-
-        local f = CreateFrame("Frame")
-        f:RegisterEvent("PLAYER_ENTERING_WORLD")
-        f:RegisterEvent("CHANNEL_UI_UPDATE")
-        f:SetScript("OnEvent", function(self, even, ...)
-            C_Timer.After(0.5, function()
-                HH.UpdateChannel()
-            end)
-        end)
+    -- 快捷输入
+    if HH_QuickInput then
+        HH.BuildQuickPanel(HH.Frame2)
     end
 
-    do -- 快捷输入 (tab切换 + 滚动)
-        if not HH_QuickInput then return end
-        local QI = HH_QuickInput
-
-        local c = CreateFrame("Frame", nil, HH.Frame2, "BackdropTemplate")
-        c:SetBackdrop({
-            bgFile = "Interface/ChatFrame/ChatFrameBackground",
-            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-            edgeSize = 10,
-            insets = { left = 2, right = 2, top = 2, bottom = 2 }
-        })
-        c:SetBackdropColor(0, 0, 0, 0.8)
-        c:SetSize(FRAME_WIDTH, QI_HEIGHT)
-        c:SetPoint("TOPLEFT", HH.button.send, "BOTTOMLEFT", 0, -36)
-
-        -- Tab 栏
-        local tabBarH = 28
-        local tabs = {}
-        local scrollFrame  -- 前向声明，供 tab OnClick 闭包捕获
-        local tabDefs = {
-            { key = "prefix",  name = "活动" },
-            { key = "content", name = "职业" },
-            { key = "suffix",  name = "备注" },
-        }
-        local activeTab = 1
-        local activeColor = { GameFontNormalSmall2:GetTextColor() }
-        local inactiveColor = { 1, 1, 1 }
-
-        for i, def in ipairs(tabDefs) do
-            local tab = CreateFrame("Button", nil, c)
-            tab:SetSize(60, tabBarH)
-            tab:SetPoint("TOPLEFT", c, "TOPLEFT", (i - 1) * 64, 0)
-            local tabText = tab:CreateFontString(nil, "OVERLAY")
-            tabText:SetFont(STANDARD_TEXT_FONT, 12)
-            tabText:SetPoint("CENTER")
-            tabText:SetText(def.name)
-            tabText:SetTextColor(inactiveColor[1], inactiveColor[2], inactiveColor[3])
-            tab:SetScript("OnClick", function()
-                activeTab = i
-                for j, t in ipairs(tabs) do
-                    local c = j == i and activeColor or inactiveColor
-                    t.text:SetTextColor(c[1], c[2], c[3])
-                end
-                RefreshQuickInput(QI)
-            end)
-            tab.text = tabText
-            tabs[i] = tab
-        end
-
-        -- 内容滚动区域
-        scrollFrame = CreateFrame("ScrollFrame", nil, c, "UIPanelScrollFrameTemplate")
-        scrollFrame:SetPoint("TOPLEFT", c, "TOPLEFT", 0, -tabBarH - 2)
-        scrollFrame:SetPoint("BOTTOMRIGHT", c, "BOTTOMRIGHT", -2, 0)
-        scrollFrame.ScrollBar:SetAlpha(0)
-
-        local scrollChild = CreateFrame("Frame", nil, scrollFrame)
-        scrollChild:SetSize(FRAME_WIDTH - 26, 1)
-        scrollFrame:SetScrollChild(scrollChild)
-
-        -- 复选框状态 (跨 tab 保持)
-        local contentChecked = {}
-        local suffixChecked = {}
-        local createdWidgets = {}
-
-        -- 暴露给外部 (清空按钮等) 调用
-        function HH.ClearQuickInput()
-            for k in pairs(contentChecked) do contentChecked[k] = nil end
-            for k in pairs(suffixChecked) do suffixChecked[k] = nil end
-            RefreshQuickInput(HH_QuickInput)
-        end
-
-        function RefreshQuickInput(qi)
-            -- 隐藏旧控件
-            for _, w in ipairs(createdWidgets) do
-                w:Hide()
-                w:SetParent(nil)
-            end
-            wipe(createdWidgets)
-
-            local def = tabDefs[activeTab]
-            local data = qi[def.key]
-            if not data or not (data.options or data.groups) then return end
-
-            local xStart = 10
-            local y = 0
-            local yRow = 22
-            local x = xStart
-            local function add(w) tinsert(createdWidgets, w); return w end
-            local meas = scrollChild:CreateFontString(nil, "ARTWORK")
-            meas:SetFont(STANDARD_TEXT_FONT, 12)
-            local cw = scrollChild:GetWidth()
-
-            if def.key == "prefix" then
-                -- 活动: 合并内置模版 + 用户存档，每项末尾有删除按钮
-                local mergedOpts = {}
-                local optSource = {}
-                local hidden = HHdb.hiddenTemplates or {}
-                for _, opt in ipairs(data.options) do
-                    if not hidden[opt] then
-                        tinsert(mergedOpts, opt)
-                        optSource[opt] = "builtin"
-                    end
-                end
-                for _, opt in ipairs(HHdb.savedTemplates or {}) do
-                    if not hidden[opt] then
-                        tinsert(mergedOpts, opt)
-                        optSource[opt] = "saved"
-                    end
-                end
-                local delBtnW = 16
-                local btnW = cw - xStart * 2 - delBtnW - 2
-                for _, opt in ipairs(mergedOpts) do
-                    local bt = add(CreateFrame("Button", nil, scrollChild))
-                    bt:SetSize(btnW, 18)
-                    bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", xStart, y)
-                    -- 截断文本
-                    local displayText = opt
-                    meas:SetText(opt)
-                    local textW = meas:GetStringWidth()
-                    if textW > btnW - 4 then
-                        while #displayText > 0 do
-                            displayText = string.sub(displayText, 1, -2)
-                            meas:SetText(displayText .. "...")
-                            if meas:GetStringWidth() <= btnW - 4 then break end
-                        end
-                        displayText = displayText .. "..."
-                    end
-                    local txt = bt:CreateFontString(nil, "ARTWORK")
-                    txt:SetPoint("LEFT", 0, 0)
-                    txt:SetFont(STANDARD_TEXT_FONT, 12)
-                    txt:SetText(displayText)
-                    txt:SetTextColor(1, 1, 1)
-                    bt:SetScript("OnClick", function()
-                        HH.editPrefix:SetText(opt)
-                    end)
-                    bt:SetScript("OnEnter", function(self)
-                        GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-                        GameTooltip:ClearLines()
-                        GameTooltip:AddLine(opt, 0.6, 0.8, 1)
-                        GameTooltip:Show()
-                    end)
-                    bt:SetScript("OnLeave", GameTooltip_Hide)
-                    -- 删除按钮
-                    local del = add(CreateFrame("Button", nil, scrollChild))
-                    del:SetSize(delBtnW, 18)
-                    del:SetPoint("LEFT", bt, "RIGHT", 2, 0)
-                    local delTxt = del:CreateFontString(nil, "ARTWORK")
-                    delTxt:SetFont(STANDARD_TEXT_FONT, 12)
-                    delTxt:SetText("X")
-                    delTxt:SetTextColor(1, 0.3, 0.3)
-                    del:SetFontString(delTxt)
-                    del:SetScript("OnClick", function()
-                        if optSource[opt] == "builtin" then
-                            HHdb.hiddenTemplates[opt] = true
-                        else
-                            for i, t in ipairs(HHdb.savedTemplates) do
-                                if t == opt then
-                                    tremove(HHdb.savedTemplates, i)
-                                    break
-                                end
-                            end
-                        end
-                        RefreshQuickInput(qi)
-                    end)
-                    del:SetScript("OnEnter", function(self)
-                        GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
-                        GameTooltip:ClearLines()
-                        GameTooltip:AddLine("删除模版", 1, 0.3, 0.3)
-                        GameTooltip:Show()
-                    end)
-                    del:SetScript("OnLeave", GameTooltip_Hide)
-                    y = y - yRow
-                end
-            elseif def.key == "content" then
-                -- 职业: 按分组展示复选框网格
-                local function renderOptions(optList, yOffset)
-                    local gx = xStart
-                    for _, opt in ipairs(optList) do
-                        local bt = add(CreateFrame("CheckButton", nil, scrollChild, "ChatConfigCheckButtonTemplate"))
-                        bt:SetSize(16, 16)
-                        meas:SetText(opt)
-                        local textW = meas:GetStringWidth()
-                        local itemW = 16 + textW + 6
-                        if gx + itemW > cw then
-                            gx = xStart
-                            yOffset = yOffset - yRow
-                        end
-                        bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", gx, yOffset)
-                        bt:SetHitRectInsets(0, -20, 0, 0)
-                        bt.Text:SetPoint("LEFT", bt, "RIGHT", -1, 0)
-                        bt.Text:SetFont(STANDARD_TEXT_FONT, 12)
-                        bt.Text:SetText(opt)
-                        bt:SetChecked(contentChecked[opt])
-                        bt:SetScript("OnClick", function(self)
-                            contentChecked[opt] = self:GetChecked()
-                            local parts = {}
-                            for _, group in ipairs(data.groups or {}) do
-                                for _, o in ipairs(group.options) do
-                                    if contentChecked[o] then tinsert(parts, o) end
-                                end
-                            end
-                            -- 兼容旧版平铺模式
-                            if not data.groups then
-                                for _, o in ipairs(data.options or {}) do
-                                    if contentChecked[o] then tinsert(parts, o) end
-                                end
-                            end
-                            if #parts > 0 then
-                                HH.editMiddle:SetText((data.prefix or "") .. table.concat(parts, "/"))
-                            else
-                                HH.editMiddle:SetText("")
-                            end
-                            PlaySound(HH.sound1)
-                        end)
-                        gx = gx + itemW + 4
-                    end
-                    return yOffset
-                end
-
-                if data.groups then
-                    for _, group in ipairs(data.groups) do
-                        y = y - 8 -- 标题上方间隔
-                        local header = add(scrollChild:CreateFontString(nil, "ARTWORK"))
-                        header:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", xStart, y)
-                        header:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
-                        header:SetText(group.label)
-                        header:SetTextColor(1, 0.82, 0)
-                        y = y - yRow -- 标题与选项间距
-                        y = renderOptions(group.options, y)
-                        y = y - yRow -- 整行间距分隔下一组
-                    end
-                else
-                    y = renderOptions(data.options or {}, y)
-                end
-            elseif def.key == "suffix" then
-                -- 备注: 复选框网格 (左→右, 上→下)
-                x = xStart
-                for _, opt in ipairs(data.options) do
-                    local bt = add(CreateFrame("CheckButton", nil, scrollChild, "ChatConfigCheckButtonTemplate"))
-                    bt:SetSize(16, 16)
-                    meas:SetText(opt)
-                    local textW = meas:GetStringWidth()
-                    local itemW = 16 + textW + 6
-                    if x + itemW > cw then
-                        x = xStart
-                        y = y - yRow
-                    end
-                    bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", x, y)
-                    bt:SetHitRectInsets(0, -20, 0, 0)
-                    bt.Text:SetPoint("LEFT", bt, "RIGHT", -1, 0)
-                    bt.Text:SetFont(STANDARD_TEXT_FONT, 12)
-                    bt.Text:SetText(opt)
-                    bt:SetChecked(suffixChecked[opt])
-                    bt:SetScript("OnClick", function(self)
-                        suffixChecked[opt] = self:GetChecked()
-                        local parts = {}
-                        for _, o in ipairs(data.options) do
-                            if suffixChecked[o] then tinsert(parts, o) end
-                        end
-                        if #parts > 0 then
-                            HH.editSuffix:SetText(table.concat(parts, "/"))
-                        else
-                            HH.editSuffix:SetText("")
-                        end
-                        PlaySound(HH.sound1)
-                    end)
-                    x = x + itemW + 4
-                end
-            end
-            scrollChild:SetSize(cw, -(y - yRow))
-        end
-
-        -- 初始激活
-        tabs[1].text:SetTextColor(activeColor[1], activeColor[2], activeColor[3])
-        RefreshQuickInput(QI)
-    end
-
-    do -- 历史记录
-        HH.FrameHistory = CreateFrame("Frame", nil, HH.Frame2)
-        HH.FrameHistory:Hide()
-        HH.historyButtons = {}
-
-        function HH.UpdateHistoryList()
-            for i, bt in ipairs(HH.historyButtons) do
-                bt:Hide()
-            end
-            wipe(HH.historyButtons)
-
-            for i = 1, #HHdb.history do
-                local bt = CreateFrame("Button", nil, HH.FrameHistory)
-                bt:SetSize(30, 15)
-                if i == 1 then
-                    bt:SetPoint("BOTTOMRIGHT", HH.FrameEdit, "TOPLEFT", -2, 2)
-                else
-                    bt:SetPoint("BOTTOMRIGHT", HH.historyButtons[i - 1], "TOPRIGHT", 0, 2)
-                end
-                bt:SetNormalFontObject(HH.FontGreen1)
-                bt:SetDisabledFontObject(HH.FontDisabled)
-                bt:SetHighlightFontObject(HH.FontHilight)
-                bt:RegisterForClicks("AnyUp")
-                bt:SetText("使用")
-                tinsert(HH.historyButtons, bt)
-                bt:SetScript("OnClick", function(self, button)
-                    if button == "LeftButton" then
-                        local entry = HHdb.history[i]
-                        if entry then
-                            if type(entry) == "table" then
-                                HH.editPrefix:SetText(entry.p or "")
-                                HH.editMiddle:SetText(entry.m or "")
-                                HH.editSuffix:SetText(entry.s or "")
-                            elseif entry ~= "" then
-                                HH.editPrefix:SetText("")
-                                HH.editMiddle:SetText(entry)
-                                HH.editSuffix:SetText("")
-                            end
-                        end
-                    elseif button == "RightButton" then
-                        tremove(HHdb.history, i)
-                        HH.UpdateHistoryList()
-                    end
-                    PlaySound(HH.sound1)
-                end)
-
-                local text = bt:CreateFontString()
-                text:SetPoint("LEFT", bt, "RIGHT", 3, 0)
-                text:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
-                local entry = HHdb.history[i]
-                local displayText = type(entry) == "table"
-                    and (entry.p or "") .. (entry.m or "") .. (entry.s or "")
-                    or entry or ""
-                text:SetText(displayText)
-            end
-        end
-
-        HH.UpdateHistoryList()
-    end
+    -- 历史记录
+    HH.FrameHistory = CreateFrame("Frame", nil, HH.Frame2)
+    HH.FrameHistory:Hide()
+    HH.historyButtons = {}
+    HH.UpdateHistoryList()
 
     hooksecurefunc('ChatConfig_UpdateCheckboxes', function(frame)
         if not frame.checkBoxTable or not frame.checkBoxTable[1] or not frame.checkBoxTable[1].channelID then
@@ -1014,22 +405,17 @@ local function HanHuaUI()
     end)
 end
 
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("ADDON_LOADED")
-frame:SetScript("OnEvent", function(self, event, addonName)
+local frameAL = CreateFrame("Frame")
+frameAL:RegisterEvent("ADDON_LOADED")
+frameAL:SetScript("OnEvent", function(self, event, addonName)
     if addonName == AddonName then
         HanHuaUI()
     end
 end)
 
-local frame = CreateFrame("Frame")
-frame:RegisterEvent("PLAYER_LOGIN")
-frame:SetScript("OnEvent", function(self)
+local framePL = CreateFrame("Frame")
+framePL:RegisterEvent("PLAYER_LOGIN")
+framePL:SetScript("OnEvent", function(self)
     HH.MainFrame:ClearAllPoints()
     HH.MainFrame:SetPoint(HHdb.point[1], HHdb.point[2], HHdb.point[3], HHdb.point[4], HHdb.point[5])
 end)
-
-SlashCmdList["HANHUA"] = function()
-    HH.Send()
-end
-SLASH_HANHUA1 = "/fasong"

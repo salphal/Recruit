@@ -186,6 +186,8 @@ local function HanHuaUI()
     HHdb.editPrefix = HHdb.editPrefix or ""
     HHdb.editMiddle = HHdb.editMiddle or ""
     HHdb.editSuffix = HHdb.editSuffix or ""
+    HHdb.savedTemplates = HHdb.savedTemplates or {}
+    HHdb.hiddenTemplates = HHdb.hiddenTemplates or {}
     -- 从旧版单输入框迁移
     if HHdb.edit and HHdb.edit ~= "" and HHdb.editMiddle == "" then
         HHdb.editMiddle = HHdb.edit
@@ -311,6 +313,7 @@ local function HanHuaUI()
                 HHdb.editPrefix = ""
                 HHdb.editMiddle = ""
                 HHdb.editSuffix = ""
+                if HH.ClearQuickInput then HH.ClearQuickInput() end
                 PlaySound(HH.sound1)
             end)
             bt:SetScript("OnEnter", function(self)
@@ -450,6 +453,7 @@ local function HanHuaUI()
             edit:SetFontObject(GameFontNormalSmall2)
             edit:SetTextColor(1, 1, 1)
             edit:SetText(HHdb[dbField] or "")
+            edit._label = lab
             HH[field] = edit
 
             edit:SetScript("OnTextChanged", function(self)
@@ -476,6 +480,33 @@ local function HanHuaUI()
 
         local last = preview
         last = MakeEditBox(last, "活动", "editPrefix", PREFIX_MAX, "editPrefix", 2)
+        -- 保存为模版按钮
+        do
+            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            btn:SetSize(60, 14)
+            btn:SetText("存模版")
+            btn:SetPoint("LEFT", last._label, "RIGHT", 4, 0)
+            btn:SetScript("OnClick", function()
+                local text = HH.editPrefix:GetText()
+                if text == "" then
+                    SendSystemMessage("活动内容为空，无法保存")
+                    return
+                end
+                -- 检查是否已存在
+                for _, t in ipairs(HHdb.savedTemplates) do
+                    if t == text then
+                        SendSystemMessage("该模版已存在")
+                        return
+                    end
+                end
+                tinsert(HHdb.savedTemplates, text)
+                SendSystemMessage("已保存模版: " .. text)
+                -- 如果当前在活动 tab，刷新列表
+                if activeTab and tabDefs and tabDefs[activeTab] and tabDefs[activeTab].key == "prefix" then
+                    RefreshQuickInput(HH_QuickInput)
+                end
+            end)
+        end
         last = MakeEditBox(last, "职业", "editMiddle", MIDDLE_MAX, "editMiddle", 4)
         last = MakeEditBox(last, "备注", "editSuffix", SUFFIX_MAX, "editSuffix", 2)
 
@@ -666,6 +697,13 @@ local function HanHuaUI()
         local suffixChecked = {}
         local createdWidgets = {}
 
+        -- 暴露给外部 (清空按钮等) 调用
+        function HH.ClearQuickInput()
+            for k in pairs(contentChecked) do contentChecked[k] = nil end
+            for k in pairs(suffixChecked) do suffixChecked[k] = nil end
+            RefreshQuickInput(HH_QuickInput)
+        end
+
         function RefreshQuickInput(qi)
             -- 隐藏旧控件
             for _, w in ipairs(createdWidgets) do
@@ -688,9 +726,25 @@ local function HanHuaUI()
             local cw = scrollChild:GetWidth()
 
             if def.key == "prefix" then
-                -- 活动: 单行列表 (固定宽度, 溢出..., 悬停查看完整内容)
-                local btnW = cw - xStart * 2
+                -- 活动: 合并内置模版 + 用户存档，每项末尾有删除按钮
+                local mergedOpts = {}
+                local optSource = {}
+                local hidden = HHdb.hiddenTemplates or {}
                 for _, opt in ipairs(data.options) do
+                    if not hidden[opt] then
+                        tinsert(mergedOpts, opt)
+                        optSource[opt] = "builtin"
+                    end
+                end
+                for _, opt in ipairs(HHdb.savedTemplates or {}) do
+                    if not hidden[opt] then
+                        tinsert(mergedOpts, opt)
+                        optSource[opt] = "saved"
+                    end
+                end
+                local delBtnW = 16
+                local btnW = cw - xStart * 2 - delBtnW - 2
+                for _, opt in ipairs(mergedOpts) do
                     local bt = add(CreateFrame("Button", nil, scrollChild))
                     bt:SetSize(btnW, 18)
                     bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", xStart, y)
@@ -721,6 +775,35 @@ local function HanHuaUI()
                         GameTooltip:Show()
                     end)
                     bt:SetScript("OnLeave", GameTooltip_Hide)
+                    -- 删除按钮
+                    local del = add(CreateFrame("Button", nil, scrollChild))
+                    del:SetSize(delBtnW, 18)
+                    del:SetPoint("LEFT", bt, "RIGHT", 2, 0)
+                    local delTxt = del:CreateFontString(nil, "ARTWORK")
+                    delTxt:SetFont(STANDARD_TEXT_FONT, 12)
+                    delTxt:SetText("X")
+                    delTxt:SetTextColor(1, 0.3, 0.3)
+                    del:SetFontString(delTxt)
+                    del:SetScript("OnClick", function()
+                        if optSource[opt] == "builtin" then
+                            HHdb.hiddenTemplates[opt] = true
+                        else
+                            for i, t in ipairs(HHdb.savedTemplates) do
+                                if t == opt then
+                                    tremove(HHdb.savedTemplates, i)
+                                    break
+                                end
+                            end
+                        end
+                        RefreshQuickInput(qi)
+                    end)
+                    del:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+                        GameTooltip:ClearLines()
+                        GameTooltip:AddLine("删除模版", 1, 0.3, 0.3)
+                        GameTooltip:Show()
+                    end)
+                    del:SetScript("OnLeave", GameTooltip_Hide)
                     y = y - yRow
                 end
             elseif def.key == "content" then

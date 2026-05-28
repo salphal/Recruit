@@ -6,13 +6,13 @@
 if not HH_config then HH_config = {} end
 
 -- 前缀最大字符数 (默认: 40)
-HH_config.prefix_max = 40
+HH_config.prefix_max = 100
 
 -- 中间最大字符数 (默认: 100)
-HH_config.middle_max = 100
+HH_config.middle_max = 150
 
 -- 后缀最大字符数 (默认: 20)
-HH_config.suffix_max = 20
+HH_config.suffix_max = 100
 
 -- 输入框宽度 (默认: 325)
 HH_config.frame_width = 325

@@ -19,3 +19,6 @@ HH_config.frame_width = 325
 
 -- 输入框高度 (默认: 260)
 HH_config.frame_height = 260
+
+-- 底部快捷输入面板高度 (默认: 400)
+HH_config.qi_height = 400

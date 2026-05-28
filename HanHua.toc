@@ -5,4 +5,5 @@
 ## SavedVariables: HHdb
 
 HanHua_Config.lua
+HanHua_QuickInput.lua
 HanHua.lua

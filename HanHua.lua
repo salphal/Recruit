@@ -21,6 +21,7 @@ local MIDDLE_MAX           = (type(HH_config) == "table" and HH_config.middle_ma
 local SUFFIX_MAX           = (type(HH_config) == "table" and HH_config.suffix_max) or 20
 local FRAME_WIDTH          = (type(HH_config) == "table" and HH_config.frame_width) or 325
 local FRAME_HEIGHT         = (type(HH_config) == "table" and HH_config.frame_height) or 330
+local QI_HEIGHT            = (type(HH_config) == "table" and HH_config.qi_height) or 325
 local maxBytes             = PREFIX_MAX + MIDDLE_MAX + SUFFIX_MAX
 
 HH.ver                     = "v" .. GetAddOnMetadata(AddonName, "Version")
@@ -99,8 +100,8 @@ function HH.Send()
     local bt = HH.button.send
     if not bt:IsEnabled() then return end
     if not next(HHdb.channels) then return end
-    local text = (HH.editPrefix:GetText() .. " " .. HH.editMiddle:GetText() .. " " .. HH.editSuffix:GetText())
-        :gsub("%s+", " "):match("^%s*(.-)%s*$")
+    local text = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText())
+        :match("^%-*(.-)%-*$"):gsub("%-+", "-")
     if text == "" then
         SendSystemMessage("当前喊话内容为空")
         return
@@ -419,7 +420,7 @@ local function HanHuaUI()
 
         local function UpdatePreview()
             if not HH.editPrefix or not HH.editMiddle or not HH.editSuffix then return end
-            local t = (HH.editPrefix:GetText() .. " " .. HH.editMiddle:GetText() .. " " .. HH.editSuffix:GetText()):match("^%s*(.-)%s*$")
+            local t = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText()):match("^%-*(.-)%-*$"):gsub("%-+", "-")
             preview:SetText("最终: " .. t)
         end
 
@@ -474,9 +475,9 @@ local function HanHuaUI()
         end
 
         local last = preview
-        last = MakeEditBox(last, "前缀", "editPrefix", PREFIX_MAX, "editPrefix", 2)
-        last = MakeEditBox(last, "内容", "editMiddle", MIDDLE_MAX, "editMiddle", 4)
-        last = MakeEditBox(last, "后缀", "editSuffix", SUFFIX_MAX, "editSuffix", 2)
+        last = MakeEditBox(last, "活动", "editPrefix", PREFIX_MAX, "editPrefix", 2)
+        last = MakeEditBox(last, "职业", "editMiddle", MIDDLE_MAX, "editMiddle", 4)
+        last = MakeEditBox(last, "备注", "editSuffix", SUFFIX_MAX, "editSuffix", 2)
 
         f:SetScript("OnMouseDown", function(self)
             HH.editMiddle:SetFocus()
@@ -599,6 +600,231 @@ local function HanHuaUI()
                 HH.UpdateChannel()
             end)
         end)
+    end
+
+    do -- 快捷输入 (tab切换 + 滚动)
+        if not HH_QuickInput then return end
+        local QI = HH_QuickInput
+
+        local c = CreateFrame("Frame", nil, HH.Frame2, "BackdropTemplate")
+        c:SetBackdrop({
+            bgFile = "Interface/ChatFrame/ChatFrameBackground",
+            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+            edgeSize = 10,
+            insets = { left = 2, right = 2, top = 2, bottom = 2 }
+        })
+        c:SetBackdropColor(0, 0, 0, 0.8)
+        c:SetSize(FRAME_WIDTH, QI_HEIGHT)
+        c:SetPoint("TOPLEFT", HH.button.send, "BOTTOMLEFT", 0, -36)
+
+        -- Tab 栏
+        local tabBarH = 28
+        local tabs = {}
+        local scrollFrame  -- 前向声明，供 tab OnClick 闭包捕获
+        local tabDefs = {
+            { key = "prefix",  name = "活动" },
+            { key = "content", name = "职业" },
+            { key = "suffix",  name = "备注" },
+        }
+        local activeTab = 1
+        local activeColor = { GameFontNormalSmall2:GetTextColor() }
+        local inactiveColor = { 1, 1, 1 }
+
+        for i, def in ipairs(tabDefs) do
+            local tab = CreateFrame("Button", nil, c)
+            tab:SetSize(60, tabBarH)
+            tab:SetPoint("TOPLEFT", c, "TOPLEFT", (i - 1) * 64, 0)
+            local tabText = tab:CreateFontString(nil, "OVERLAY")
+            tabText:SetFont(STANDARD_TEXT_FONT, 12)
+            tabText:SetPoint("CENTER")
+            tabText:SetText(def.name)
+            tabText:SetTextColor(inactiveColor[1], inactiveColor[2], inactiveColor[3])
+            tab:SetScript("OnClick", function()
+                activeTab = i
+                for j, t in ipairs(tabs) do
+                    local c = j == i and activeColor or inactiveColor
+                    t.text:SetTextColor(c[1], c[2], c[3])
+                end
+                RefreshQuickInput(QI)
+            end)
+            tab.text = tabText
+            tabs[i] = tab
+        end
+
+        -- 内容滚动区域
+        scrollFrame = CreateFrame("ScrollFrame", nil, c, "UIPanelScrollFrameTemplate")
+        scrollFrame:SetPoint("TOPLEFT", c, "TOPLEFT", 0, -tabBarH - 2)
+        scrollFrame:SetPoint("BOTTOMRIGHT", c, "BOTTOMRIGHT", -2, 0)
+        scrollFrame.ScrollBar:SetAlpha(0)
+
+        local scrollChild = CreateFrame("Frame", nil, scrollFrame)
+        scrollChild:SetSize(FRAME_WIDTH - 26, 1)
+        scrollFrame:SetScrollChild(scrollChild)
+
+        -- 复选框状态 (跨 tab 保持)
+        local contentChecked = {}
+        local suffixChecked = {}
+        local createdWidgets = {}
+
+        function RefreshQuickInput(qi)
+            -- 隐藏旧控件
+            for _, w in ipairs(createdWidgets) do
+                w:Hide()
+                w:SetParent(nil)
+            end
+            wipe(createdWidgets)
+
+            local def = tabDefs[activeTab]
+            local data = qi[def.key]
+            if not data or not (data.options or data.groups) then return end
+
+            local xStart = 10
+            local y = 0
+            local yRow = 22
+            local x = xStart
+            local function add(w) tinsert(createdWidgets, w); return w end
+            local meas = scrollChild:CreateFontString(nil, "ARTWORK")
+            meas:SetFont(STANDARD_TEXT_FONT, 12)
+            local cw = scrollChild:GetWidth()
+
+            if def.key == "prefix" then
+                -- 活动: 单行列表 (固定宽度, 溢出..., 悬停查看完整内容)
+                local btnW = cw - xStart * 2
+                for _, opt in ipairs(data.options) do
+                    local bt = add(CreateFrame("Button", nil, scrollChild))
+                    bt:SetSize(btnW, 18)
+                    bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", xStart, y)
+                    -- 截断文本
+                    local displayText = opt
+                    meas:SetText(opt)
+                    local textW = meas:GetStringWidth()
+                    if textW > btnW - 4 then
+                        while #displayText > 0 do
+                            displayText = string.sub(displayText, 1, -2)
+                            meas:SetText(displayText .. "...")
+                            if meas:GetStringWidth() <= btnW - 4 then break end
+                        end
+                        displayText = displayText .. "..."
+                    end
+                    local txt = bt:CreateFontString(nil, "ARTWORK")
+                    txt:SetPoint("LEFT", 0, 0)
+                    txt:SetFont(STANDARD_TEXT_FONT, 12)
+                    txt:SetText(displayText)
+                    txt:SetTextColor(1, 1, 1)
+                    bt:SetScript("OnClick", function()
+                        HH.editPrefix:SetText(opt)
+                    end)
+                    bt:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
+                        GameTooltip:ClearLines()
+                        GameTooltip:AddLine(opt, 0.6, 0.8, 1)
+                        GameTooltip:Show()
+                    end)
+                    bt:SetScript("OnLeave", GameTooltip_Hide)
+                    y = y - yRow
+                end
+            elseif def.key == "content" then
+                -- 职业: 按分组展示复选框网格
+                local function renderOptions(optList, yOffset)
+                    local gx = xStart
+                    for _, opt in ipairs(optList) do
+                        local bt = add(CreateFrame("CheckButton", nil, scrollChild, "ChatConfigCheckButtonTemplate"))
+                        bt:SetSize(16, 16)
+                        meas:SetText(opt)
+                        local textW = meas:GetStringWidth()
+                        local itemW = 16 + textW + 6
+                        if gx + itemW > cw then
+                            gx = xStart
+                            yOffset = yOffset - yRow
+                        end
+                        bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", gx, yOffset)
+                        bt:SetHitRectInsets(0, -20, 0, 0)
+                        bt.Text:SetPoint("LEFT", bt, "RIGHT", -1, 0)
+                        bt.Text:SetFont(STANDARD_TEXT_FONT, 12)
+                        bt.Text:SetText(opt)
+                        bt:SetChecked(contentChecked[opt])
+                        bt:SetScript("OnClick", function(self)
+                            contentChecked[opt] = self:GetChecked()
+                            local parts = {}
+                            for _, group in ipairs(data.groups or {}) do
+                                for _, o in ipairs(group.options) do
+                                    if contentChecked[o] then tinsert(parts, o) end
+                                end
+                            end
+                            -- 兼容旧版平铺模式
+                            if not data.groups then
+                                for _, o in ipairs(data.options or {}) do
+                                    if contentChecked[o] then tinsert(parts, o) end
+                                end
+                            end
+                            if #parts > 0 then
+                                HH.editMiddle:SetText((data.prefix or "") .. table.concat(parts, "/"))
+                            else
+                                HH.editMiddle:SetText("")
+                            end
+                            PlaySound(HH.sound1)
+                        end)
+                        gx = gx + itemW + 4
+                    end
+                    return yOffset
+                end
+
+                if data.groups then
+                    for _, group in ipairs(data.groups) do
+                        y = y - 8 -- 标题上方间隔
+                        local header = add(scrollChild:CreateFontString(nil, "ARTWORK"))
+                        header:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", xStart, y)
+                        header:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
+                        header:SetText(group.label)
+                        header:SetTextColor(1, 0.82, 0)
+                        y = y - yRow -- 标题与选项间距
+                        y = renderOptions(group.options, y)
+                        y = y - yRow -- 整行间距分隔下一组
+                    end
+                else
+                    y = renderOptions(data.options or {}, y)
+                end
+            elseif def.key == "suffix" then
+                -- 备注: 复选框网格 (左→右, 上→下)
+                x = xStart
+                for _, opt in ipairs(data.options) do
+                    local bt = add(CreateFrame("CheckButton", nil, scrollChild, "ChatConfigCheckButtonTemplate"))
+                    bt:SetSize(16, 16)
+                    meas:SetText(opt)
+                    local textW = meas:GetStringWidth()
+                    local itemW = 16 + textW + 6
+                    if x + itemW > cw then
+                        x = xStart
+                        y = y - yRow
+                    end
+                    bt:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", x, y)
+                    bt:SetHitRectInsets(0, -20, 0, 0)
+                    bt.Text:SetPoint("LEFT", bt, "RIGHT", -1, 0)
+                    bt.Text:SetFont(STANDARD_TEXT_FONT, 12)
+                    bt.Text:SetText(opt)
+                    bt:SetChecked(suffixChecked[opt])
+                    bt:SetScript("OnClick", function(self)
+                        suffixChecked[opt] = self:GetChecked()
+                        local parts = {}
+                        for _, o in ipairs(data.options) do
+                            if suffixChecked[o] then tinsert(parts, o) end
+                        end
+                        if #parts > 0 then
+                            HH.editSuffix:SetText(table.concat(parts, "/"))
+                        else
+                            HH.editSuffix:SetText("")
+                        end
+                        PlaySound(HH.sound1)
+                    end)
+                    x = x + itemW + 4
+                end
+            end
+            scrollChild:SetSize(cw, -(y - yRow))
+        end
+
+        -- 初始激活
+        tabs[1].text:SetTextColor(activeColor[1], activeColor[2], activeColor[3])
+        RefreshQuickInput(QI)
     end
 
     do -- 历史记录

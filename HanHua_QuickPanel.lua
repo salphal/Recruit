@@ -277,6 +277,13 @@ function HH.BuildQuickPanel(parent)
         tabs[i] = tab
     end
 
+    -- 灰色下边框
+    local line = c:CreateTexture(nil, "ARTWORK")
+    line:SetColorTexture(0.4, 0.4, 0.4, 0.6)
+    line:SetPoint("TOPLEFT", c, "TOPLEFT", 0, -tabBarH)
+    line:SetPoint("TOPRIGHT", c, "TOPRIGHT", 0, -tabBarH)
+    line:SetHeight(1)
+
     -- 内容滚动区域
     local scrollFrame = CreateFrame("ScrollFrame", nil, c, "UIPanelScrollFrameTemplate")
     scrollFrame:SetPoint("TOPLEFT", c, "TOPLEFT", 0, -tabBarH - 2)

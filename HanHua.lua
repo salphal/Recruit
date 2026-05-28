@@ -14,7 +14,14 @@ HH.sound1                  = SOUNDKIT.GS_TITLE_OPTION_OK
 
 HH.MAX_HISTORY             = 15
 HH.SendColdTime            = 20
-local maxBytes             = 168
+
+-- 从 HanHua_Config.lua 读取配置, 无配置使用默认值
+local PREFIX_MAX           = (type(HH_config) == "table" and HH_config.prefix_max) or 40
+local MIDDLE_MAX           = (type(HH_config) == "table" and HH_config.middle_max) or 100
+local SUFFIX_MAX           = (type(HH_config) == "table" and HH_config.suffix_max) or 20
+local FRAME_WIDTH          = (type(HH_config) == "table" and HH_config.frame_width) or 325
+local FRAME_HEIGHT         = (type(HH_config) == "table" and HH_config.frame_height) or 330
+local maxBytes             = PREFIX_MAX + MIDDLE_MAX + SUFFIX_MAX
 
 HH.ver                     = "v" .. GetAddOnMetadata(AddonName, "Version")
 
@@ -92,7 +99,8 @@ function HH.Send()
     local bt = HH.button.send
     if not bt:IsEnabled() then return end
     if not next(HHdb.channels) then return end
-    local text = HH.edit:GetText()
+    local text = (HH.editPrefix:GetText() .. " " .. HH.editMiddle:GetText() .. " " .. HH.editSuffix:GetText())
+        :gsub("%s+", " "):match("^%s*(.-)%s*$")
     if text == "" then
         SendSystemMessage("当前喊话内容为空")
         return
@@ -125,15 +133,17 @@ function HH.Send()
         end)
     end
 
+    local historyItem = { p = HH.editPrefix:GetText(), m = HH.editMiddle:GetText(), s = HH.editSuffix:GetText() }
     local isNewText = true
-    for _, _text in ipairs(HHdb.history) do
-        if text == _text then
+    for _, entry in ipairs(HHdb.history) do
+        local et = type(entry) == "table" and (entry.p or "") .. (entry.m or "") .. (entry.s or "") or entry
+        if et == text then
             isNewText = false
             break
         end
     end
     if isNewText then
-        tinsert(HHdb.history, 1, text)
+        tinsert(HHdb.history, 1, historyItem)
     end
     for i = #HHdb.history, 1, -1 do
         if i > HH.MAX_HISTORY then
@@ -141,7 +151,9 @@ function HH.Send()
         end
     end
     HH.UpdateHistoryList()
-    HH.edit:ClearFocus()
+    HH.editPrefix:ClearFocus()
+    HH.editMiddle:ClearFocus()
+    HH.editSuffix:ClearFocus()
     PlaySound(HH.sound1)
 
     -- 同时修改集结号的活动说明
@@ -170,6 +182,14 @@ local function HanHuaUI()
     HHdb.channels = HHdb.channels or {}
     HHdb.history = HHdb.history or {}
     HHdb.auto = HHdb.auto or false
+    HHdb.editPrefix = HHdb.editPrefix or ""
+    HHdb.editMiddle = HHdb.editMiddle or ""
+    HHdb.editSuffix = HHdb.editSuffix or ""
+    -- 从旧版单输入框迁移
+    if HHdb.edit and HHdb.edit ~= "" and HHdb.editMiddle == "" then
+        HHdb.editMiddle = HHdb.edit
+    end
+    HHdb.edit = nil
 
     local same = {}
     for ii, text1 in ipairs(HHdb.history) do
@@ -279,13 +299,17 @@ local function HanHuaUI()
         -- 清空
         do
             local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
-            bt:SetSize(40, 20)
+            bt:SetSize(80, 20)
             bt:SetPoint("LEFT", HH.button.send, "RIGHT", 3, 0)
-            bt:SetText("清空")
+            bt:SetText("清空内容")
             bt:SetClampedToScreen(true)
             bt:SetScript("OnClick", function()
-                HH.edit:SetText("")
-                HHdb.edit = ""
+                HH.editPrefix:SetText("")
+                HH.editMiddle:SetText("")
+                HH.editSuffix:SetText("")
+                HHdb.editPrefix = ""
+                HHdb.editMiddle = ""
+                HHdb.editSuffix = ""
                 PlaySound(HH.sound1)
             end)
             bt:SetScript("OnEnter", function(self)
@@ -298,11 +322,33 @@ local function HanHuaUI()
             HH.button.clear = bt
         end
 
+        -- 清空历史
+        do
+            local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
+            bt:SetSize(80, 20)
+            bt:SetPoint("LEFT", HH.button.clear, "RIGHT", 3, 0)
+            bt:SetText("清空历史")
+            bt:SetClampedToScreen(true)
+            bt:SetScript("OnClick", function()
+                HHdb.history = {}
+                HH.UpdateHistoryList()
+                PlaySound(HH.sound1)
+            end)
+            bt:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT", 0, 0)
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine("清空所有历史记录", 1, 1, 1)
+                GameTooltip:Show()
+            end)
+            bt:SetScript("OnLeave", GameTooltip_Hide)
+            HH.button.clearHistory = bt
+        end
+
         -- 自动
         do
             local bt = CreateFrame("CheckButton", nil, HH.MainFrame, "ChatConfigCheckButtonTemplate")
             bt:SetSize(20, 20)
-            bt:SetPoint("LEFT", HH.button.clear, "RIGHT", 3, 0)
+            bt:SetPoint("LEFT", HH.button.clearHistory, "RIGHT", 3, 0)
             bt.Text:SetPoint("LEFT", bt, "RIGHT", -2, 0)
             bt.Text:SetText("自动")
             bt:SetChecked(HHdb.auto)
@@ -349,58 +395,94 @@ local function HanHuaUI()
         local f = CreateFrame("Frame", nil, HH.Frame2, "BackdropTemplate")
         f:SetBackdrop({
             bgFile = "Interface/ChatFrame/ChatFrameBackground",
-            edgeFile = "Interface/Tooltips/UI-Tooltip-Border", -- 工具提示边框
+            edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
             edgeSize = 10,
             insets = { left = 2, right = 2, top = 2, bottom = 2 }
         })
         f:SetBackdropColor(0, 0, 0, 0.8)
-        f:SetSize(HH.MainFrame:GetWidth() - 30, 80)
+        f:SetSize(FRAME_WIDTH, FRAME_HEIGHT)
         f:SetPoint("BOTTOMLEFT", HH.button.send, "TOPLEFT", 0, 3)
         f:SetClampedToScreen(true)
         HH.FrameEdit = f
-        f:SetScript("OnMouseDown", function(self)
-            HH.edit:SetFocus()
-        end)
 
-        local edit = CreateFrame("EditBox", nil, HH.FrameEdit)
-        edit:SetWidth(f:GetWidth())
-        edit:SetHeight(f:GetHeight())
-        edit:SetAutoFocus(false)
-        edit:SetMaxBytes(maxBytes)
-        edit:EnableMouse(true)
-        edit:SetTextInsets(5, 5, 5, 0)
-        edit:SetMultiLine(true)
-        edit:SetFontObject(GameFontNormalSmall2)
-        edit:SetTextColor(1, 1, 1)
-        edit:SetText(HHdb.edit or "")
-        HH.edit = edit
-        local rightt = f:CreateFontString(nil, "ARTWORK")
-        rightt:SetFontObject(GameFontNormalSmall2)
-        rightt:SetTextColor(.5, .5, .5)
-        rightt:SetPoint("BOTTOMRIGHT", -2, 2)
-        edit:SetScript("OnTextChanged", function(self)
-            local text = self:GetText()
-            if text then
+        local preview = f:CreateFontString(nil, "ARTWORK")
+        preview:SetPoint("TOPLEFT", 5, -5)
+        preview:SetPoint("TOPRIGHT", -5, -5)
+        preview:SetHeight(100)
+        preview:SetFontObject(GameFontNormalSmall2)
+        preview:SetTextColor(0, 1, 0)
+        preview:SetJustifyH("LEFT")
+        preview:SetJustifyV("TOP")
+        preview:SetSpacing(2)
+        preview:SetWordWrap(true)
+        preview:SetNonSpaceWrap(true)
+
+        local function UpdatePreview()
+            if not HH.editPrefix or not HH.editMiddle or not HH.editSuffix then return end
+            local t = (HH.editPrefix:GetText() .. " " .. HH.editMiddle:GetText() .. " " .. HH.editSuffix:GetText()):match("^%s*(.-)%s*$")
+            preview:SetText("最终: " .. t)
+        end
+
+        local function MakeEditBox(anchor, label, field, max, dbField, rows, yOff)
+            yOff = yOff or -6
+            local rowH = 18
+            local editH = rows * rowH
+
+            local lab = f:CreateFontString(nil, "ARTWORK")
+            lab:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, yOff)
+            lab:SetHeight(14)
+            lab:SetFontObject(GameFontNormalSmall2)
+            lab:SetJustifyH("LEFT")
+            local savedText = HHdb[dbField] or ""
+            lab:SetText(label .. " (" .. #savedText .. "/" .. max .. ")")
+
+            local edit = CreateFrame("EditBox", nil, f)
+            edit:SetPoint("TOPLEFT", lab, "BOTTOMLEFT", 0, -2)
+            edit:SetPoint("TOPRIGHT", -6, 0)
+            edit:SetHeight(editH)
+            edit:SetJustifyH("LEFT")
+            edit:SetMaxBytes(max + 1)
+            edit:SetAutoFocus(false)
+            edit:SetMultiLine(true)
+            edit:EnableMouse(true)
+            edit:SetTextInsets(3, 3, 0, 0)
+            edit:SetFontObject(GameFontNormalSmall2)
+            edit:SetTextColor(1, 1, 1)
+            edit:SetText(HHdb[dbField] or "")
+            HH[field] = edit
+
+            edit:SetScript("OnTextChanged", function(self)
+                local text = self:GetText()
+                if not text then
+                    HHdb[dbField] = ""
+                    lab:SetText(label .. " (0/" .. max .. ")")
+                    UpdatePreview()
+                    return
+                end
                 if text:find("\n") then
                     self:SetText(text:gsub("\n", ""))
                     return
                 end
-                HHdb.edit = self:GetText()
-                rightt:SetText(edit:GetMaxBytes() - strlen(text))
-            end
-        end)
-        edit:SetScript("OnEscapePressed", function(self)
-            self:ClearFocus()
-        end)
-        edit:SetScript("OnEnterPressed", function(self)
-            self:ClearFocus()
+                HHdb[dbField] = text
+                lab:SetText(label .. " (" .. #text .. "/" .. max .. ")")
+                UpdatePreview()
+            end)
+            edit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+            edit:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+
+            return edit
+        end
+
+        local last = preview
+        last = MakeEditBox(last, "前缀", "editPrefix", PREFIX_MAX, "editPrefix", 2)
+        last = MakeEditBox(last, "内容", "editMiddle", MIDDLE_MAX, "editMiddle", 4)
+        last = MakeEditBox(last, "后缀", "editSuffix", SUFFIX_MAX, "editSuffix", 2)
+
+        f:SetScript("OnMouseDown", function(self)
+            HH.editMiddle:SetFocus()
         end)
 
-        local f = CreateFrame("ScrollFrame", nil, HH.FrameEdit)
-        f:SetWidth(HH.FrameEdit:GetWidth())
-        f:SetHeight(HH.FrameEdit:GetHeight())
-        f:SetPoint("TOPLEFT")
-        f:SetScrollChild(edit)
+        UpdatePreview()
     end
 
     do -- 频道
@@ -546,8 +628,17 @@ local function HanHuaUI()
                 tinsert(HH.historyButtons, bt)
                 bt:SetScript("OnClick", function(self, button)
                     if button == "LeftButton" then
-                        if HHdb.history[i] and HHdb.history[i] ~= "" then
-                            HH.edit:SetText(HHdb.history[i])
+                        local entry = HHdb.history[i]
+                        if entry then
+                            if type(entry) == "table" then
+                                HH.editPrefix:SetText(entry.p or "")
+                                HH.editMiddle:SetText(entry.m or "")
+                                HH.editSuffix:SetText(entry.s or "")
+                            elseif entry ~= "" then
+                                HH.editPrefix:SetText("")
+                                HH.editMiddle:SetText(entry)
+                                HH.editSuffix:SetText("")
+                            end
                         end
                     elseif button == "RightButton" then
                         tremove(HHdb.history, i)
@@ -559,7 +650,11 @@ local function HanHuaUI()
                 local text = bt:CreateFontString()
                 text:SetPoint("LEFT", bt, "RIGHT", 3, 0)
                 text:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
-                text:SetText(HHdb.history[i] or "")
+                local entry = HHdb.history[i]
+                local displayText = type(entry) == "table"
+                    and (entry.p or "") .. (entry.m or "") .. (entry.s or "")
+                    or entry or ""
+                text:SetText(displayText)
             end
         end
 
@@ -574,7 +669,7 @@ local function HanHuaUI()
     end)
 
     hooksecurefunc('QuestLogTitleButton_OnClick', function(self)
-        if HH.edit:HasFocus() then
+        if HH.editPrefix:HasFocus() or HH.editMiddle:HasFocus() or HH.editSuffix:HasFocus() then
             local questName = self:GetText();
             local questIndex = self:GetID() + FauxScrollFrame_GetOffset(QuestLogListScrollFrame);
             if (IsShiftKeyDown()) then
@@ -595,7 +690,7 @@ local function HanHuaUI()
                     AutoQuestWatch_Insert(questIndex, QUEST_WATCH_NO_EXPIRE);
                     QuestWatch_Update();
                 end
-                HH.edit:Insert(gsub(self:GetText(), " *(.*)", "%1"));
+                HH.editMiddle:Insert(gsub(self:GetText(), " *(.*)", "%1"));
             end
             QuestLog_Update();
         end

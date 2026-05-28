@@ -1,7 +1,8 @@
 ## Interface: 11508, 20505, 30405, 38001 40402, 50503, 50504, 120000
 ## Title: <HanHua> |cff00BFFF喊话助手|r
 ## Author: 苍穹之霜
-## Version: 1.1.2
+## Version: 1.2.0
 ## SavedVariables: HHdb
 
+HanHua_Config.lua
 HanHua.lua

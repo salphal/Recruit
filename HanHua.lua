@@ -421,7 +421,7 @@ local function HanHuaUI()
         local function UpdatePreview()
             if not HH.editPrefix or not HH.editMiddle or not HH.editSuffix then return end
             local t = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText()):match("^%-*(.-)%-*$"):gsub("%-+", "-")
-            preview:SetText("最终: " .. t)
+            preview:SetText("最终:\n" .. t)
         end
 
         local function MakeEditBox(anchor, label, field, max, dbField, rows, yOff)

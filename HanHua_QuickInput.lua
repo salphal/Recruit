@@ -8,43 +8,10 @@ if not HH_QuickInput then HH_QuickInput = {} end
 HH_QuickInput.prefix = {
     label = "活动",
     options = {
-        -- 经典旧世 P1-P5
-        "MC+黑龙百元均分黑龙百元均分黑龙百元均分黑龙百元均分黑龙百元均分黑龙百元均分",
-        "MC全通",
-        "黑龙MM",
-        "BWL百元均分",
-        "BWL龙息",
-        "ZG百元均分",
-        "ZG龙虎",
-        "废墟百元均分",
-        "TAQ百元均分",
-        "TAQ全通",
-        "NAXX双龙百元均分",
-        "NAXX单龙全通",
-        "NAXX全通",
-        -- TBC P6-P9
-        "KLZ百元均分",
-        "KLZ午夜队",
-        "格鲁尔玛瑟里顿",
-        "毒蛇神殿",
-        "风暴要塞",
-        "海山黑庙",
-        "BT百元均分",
-        "SW百元均分",
-        "SW全通",
-        "ZAM百元均分",
-        "ZAM冲熊",
-        -- WLK P10
-        "NAXX双龙百元均分",
-        "黑曜石3+1",
-        "永恒之眼",
-        "ULD百元均分",
-        "ULD观星",
-        "TOC百元均分",
-        "HTOC 50箱",
-        "ICC百元均分",
-        "ICCH成就龙",
-        "RS百元均分",
+        -- P1
+        -- P2
+        -- P3
+        -- P4
     },
 }
 
@@ -65,10 +32,10 @@ HH_QuickInput.content = {
         {
             label = "N",
             options = {
-                "JLM",
                 "NQ",
                 "奶萨",
                 "奶D",
+                "JLM",
                 "神牧",
             },
         },
@@ -85,7 +52,6 @@ HH_QuickInput.content = {
                 "战斗贼",
                 "刺杀贼",
                 "敏锐贼",
-                "生存猎",
             },
         },
         {
@@ -101,6 +67,7 @@ HH_QuickInput.content = {
                 "元素萨",
                 "射击猎",
                 "兽王猎",
+                "生存猎",
                 "暗牧",
             },
         },

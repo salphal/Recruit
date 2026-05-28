@@ -24,7 +24,7 @@ HH.SUFFIX_MAX              = (type(HH_config) == "table" and HH_config.suffix_ma
 HH.GTUAN_MAX               = (type(HH_config) == "table" and HH_config.gtuan_max) or 40
 HH.TUANBU_MAX              = (type(HH_config) == "table" and HH_config.tuanbu_max) or 40
 HH.FRAME_WIDTH             = (type(HH_config) == "table" and HH_config.frame_width) or 325
-HH.FRAME_HEIGHT            = (type(HH_config) == "table" and HH_config.frame_height) or 330
+HH.FRAME_HEIGHT            = (type(HH_config) == "table" and HH_config.frame_height) or 360
 HH.QI_HEIGHT               = (type(HH_config) == "table" and HH_config.qi_height) or 325
 HH.maxBytes                = HH.PREFIX_MAX + HH.MIDDLE_MAX + HH.SUFFIX_MAX + HH.GTUAN_MAX + HH.TUANBU_MAX
 

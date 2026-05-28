@@ -118,6 +118,9 @@ function HH.Send()
                 self:SetEnabled(true)
                 self:SetText("发送")
                 self:SetScript("OnUpdate", nil)
+                if HHdb.auto then
+                    C_Timer.After(0, HH.Send)
+                end
             end
         end)
     end
@@ -166,6 +169,7 @@ local function HanHuaUI()
     end
     HHdb.channels = HHdb.channels or {}
     HHdb.history = HHdb.history or {}
+    HHdb.auto = HHdb.auto or false
 
     local same = {}
     for ii, text1 in ipairs(HHdb.history) do
@@ -186,7 +190,7 @@ local function HanHuaUI()
     HHdb.point = HHdb.point or { "CENTER", nil, "CENTER", 0, -200 }
 
     HH.MainFrame = CreateFrame("Frame", "HH.MainFrame", UIParent)
-    HH.MainFrame:SetSize(280, 100)
+    HH.MainFrame:SetSize(280, 130)
     HH.MainFrame:SetMovable(true)
     HH.MainFrame:SetToplevel(true)
     HH.MainFrame:SetClampedToScreen(true)
@@ -271,6 +275,49 @@ local function HanHuaUI()
             GameTooltip:Show()
         end)
         bt:SetScript("OnLeave", GameTooltip_Hide)
+
+        -- 清空
+        do
+            local bt = CreateFrame("Button", nil, HH.MainFrame, "UIPanelButtonTemplate")
+            bt:SetSize(40, 20)
+            bt:SetPoint("LEFT", HH.button.send, "RIGHT", 3, 0)
+            bt:SetText("清空")
+            bt:SetClampedToScreen(true)
+            bt:SetScript("OnClick", function()
+                HH.edit:SetText("")
+                HHdb.edit = ""
+                PlaySound(HH.sound1)
+            end)
+            bt:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT", 0, 0)
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine("清空输入框", 1, 1, 1)
+                GameTooltip:Show()
+            end)
+            bt:SetScript("OnLeave", GameTooltip_Hide)
+            HH.button.clear = bt
+        end
+
+        -- 自动
+        do
+            local bt = CreateFrame("CheckButton", nil, HH.MainFrame, "ChatConfigCheckButtonTemplate")
+            bt:SetSize(20, 20)
+            bt:SetPoint("LEFT", HH.button.clear, "RIGHT", 3, 0)
+            bt.Text:SetPoint("LEFT", bt, "RIGHT", -2, 0)
+            bt.Text:SetText("自动")
+            bt:SetChecked(HHdb.auto)
+            bt:SetScript("OnClick", function(self)
+                HHdb.auto = self:GetChecked()
+                PlaySound(HH.sound1)
+            end)
+            bt:SetScript("OnEnter", function(self)
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT", 0, 0)
+                GameTooltip:ClearLines()
+                GameTooltip:AddLine("CD结束后自动发送", 1, 1, 1)
+                GameTooltip:Show()
+            end)
+            bt:SetScript("OnLeave", GameTooltip_Hide)
+        end
 
         -- 历史
         local bt = CreateFrame("Button", nil, HH.Frame2)
@@ -371,10 +418,11 @@ local function HanHuaUI()
             local function CreateButton(v)
                 local bt = CreateFrame("CheckButton", nil, HH.Frame2, "ChatConfigCheckButtonTemplate")
                 bt:SetSize(25, 25)
-                bt:SetPoint("LEFT", right or HH.button.send, "RIGHT", right and 10 or 3, 0)
+                bt:SetPoint("LEFT", right or HH.button.send, right and "RIGHT" or "BOTTOMLEFT", right and 10 or 3, right and 0 or -18)
                 bt.Text:SetPoint("LEFT", bt, "RIGHT", -2, 0)
                 bt.Text:SetText(v.channelID)
                 bt:SetHitRectInsets(0, -10, 0, 0)
+                bt.channelData = v
                 tinsert(HH.button.channel, bt)
                 right = bt
 
@@ -409,11 +457,56 @@ local function HanHuaUI()
                 end)
                 bt:SetScript("OnLeave", GameTooltip_Hide)
             end
+            -- All
+            do
+                local bt = CreateFrame("CheckButton", nil, HH.Frame2, "ChatConfigCheckButtonTemplate")
+                bt:SetSize(25, 25)
+                bt:SetPoint("LEFT", right or HH.button.send, right and "RIGHT" or "BOTTOMLEFT", right and 10 or 3, right and 0 or -18)
+                bt.Text:SetPoint("LEFT", bt, "RIGHT", -2, 0)
+                bt.Text:SetText("A")
+                bt.Text:SetTextColor(1, 0.82, 0)
+                bt:SetHitRectInsets(0, -10, 0, 0)
+                tinsert(HH.button.channel, bt)
+                right = bt
+                bt:SetScript("OnClick", function(self)
+                    local checked = self:GetChecked()
+                    for _, channelBt in ipairs(HH.button.channel) do
+                        if channelBt ~= self and channelBt.channelData then
+                            channelBt:SetChecked(checked)
+                            local v = channelBt.channelData
+                            if checked then
+                                HHdb.channels[v.name] = { channelID = v.channelID, join = true, yell = v.yell }
+                            else
+                                HHdb.channels[v.name] = nil
+                            end
+                        end
+                    end
+                    PlaySound(HH.sound1)
+                end)
+                bt:SetScript("OnEnter", function(self)
+                    GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
+                    GameTooltip:ClearLines()
+                    GameTooltip:AddLine("选择全部频道", 1, 1, 1)
+                    GameTooltip:Show()
+                end)
+                bt:SetScript("OnLeave", GameTooltip_Hide)
+            end
+
             CreateButton({ channelID = "Y", name = "大喊", yell = true })
 
             for _, v in ipairs(HH.channels) do
                 CreateButton(v)
             end
+
+            -- 设置 All 初始勾选状态
+            local allChecked = true
+            for _, bt in ipairs(HH.button.channel) do
+                if bt.channelData and not bt:GetChecked() then
+                    allChecked = false
+                    break
+                end
+            end
+            HH.button.channel[1]:SetChecked(allChecked)
         end
 
         local f = CreateFrame("Frame")

@@ -452,7 +452,7 @@ local function HanHuaUI()
                 end
             end)
         end
-        last = MakeEditBox(last, "团补", "editTuanbu", HH.TUANBU_MAX, "editTuanbu", 1)
+        last = MakeEditBox(last, "补充", "editTuanbu", HH.TUANBU_MAX, "editTuanbu", 1)
         do
             local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
             btn:SetSize(40, 14)

@@ -17,7 +17,7 @@ HH_config.suffix_max = 100
 -- G团信息最大字符数 (默认: 40)
 HH_config.gtuan_max = 40
 
--- 团补信息最大字符数 (默认: 40)
+-- 补充信息最大字符数 (默认: 40)
 HH_config.tuanbu_max = 40
 
 -- 输入框宽度 (默认: 325)

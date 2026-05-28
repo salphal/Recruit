@@ -23,6 +23,12 @@ HH_QuickInput.gtuan = {
         {
             label = "宝库",
             options = {
+                'P10宝库',
+                'P9宝库',
+                'P8宝库',
+                'P7宝库',
+                'P6宝库',
+                'P5宝库',
                 'P4宝库',
                 'P3宝库',
                 'P2宝库',
@@ -112,10 +118,10 @@ HH_QuickInput.prefix = {
     },
 }
 
--- tuanbu: 团补信息（分组展示，多选，和职业/备注一样勾选拼接）
+-- tuanbu: 补充信息（分组展示，多选，和职业/备注一样勾选拼接）
 HH_QuickInput.tuanbu = {
-    label = "团补",
-    prefix = "团补:",
+    label = "补充",
+    prefix = "补充:",
     groups = {
         {
             label = "通用",

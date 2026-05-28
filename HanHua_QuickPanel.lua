@@ -6,7 +6,7 @@ HH.activeTab = 1
 HH.tabDefs = {
     { key = "gtuan",   name = "重要" },
     { key = "prefix",  name = "活动" },
-    { key = "tuanbu",  name = "团补" },
+    { key = "tuanbu",  name = "补充" },
     { key = "content", name = "职业" },
     { key = "suffix",  name = "备注" },
 }
@@ -168,7 +168,7 @@ function RefreshQuickInput(qi)
             end
         end
     elseif def.key == "content" or def.key == "suffix" or def.key == "tuanbu" then
-        -- 职业 / 备注 / 团补: 按分组展示复选框网格
+        -- 职业 / 备注 / 补充: 按分组展示复选框网格
         local checkedTbl = def.key == "content" and HH.contentChecked or (def.key == "suffix" and HH.suffixChecked or HH.tuanbuChecked)
         local editBox = def.key == "content" and HH.editMiddle or (def.key == "suffix" and HH.editSuffix or HH.editTuanbu)
         local prefix = (def.key == "content" and data.prefix) or ""

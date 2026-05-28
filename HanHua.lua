@@ -377,7 +377,7 @@ local function HanHuaUI()
 
         local last = sepAnchor
         last = MakeEditBox(last, "重要", "editGtuan", HH.GTUAN_MAX, "editGtuan", 1)
-        -- 保存G团模版 + 清空按钮
+        -- 保存重要模版 + 清空按钮
         do
             local clearBtn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
             clearBtn:SetSize(40, 14)
@@ -398,7 +398,7 @@ local function HanHuaUI()
             saveBtn:SetScript("OnClick", function()
                 local text = HH.editGtuan:GetText()
                 if text == "" then
-                    SendSystemMessage("G团信息为空，无法保存")
+                    SendSystemMessage("重要信息为空，无法保存")
                     return
                 end
                 for _, t in ipairs(HHdb.savedGtuanTemplates) do
@@ -408,7 +408,7 @@ local function HanHuaUI()
                     end
                 end
                 tinsert(HHdb.savedGtuanTemplates, text)
-                SendSystemMessage("已保存G团模版: " .. text)
+                SendSystemMessage("已保存重要模版: " .. text)
                 if HH.activeTab and HH.tabDefs and HH.tabDefs[HH.activeTab] and HH.tabDefs[HH.activeTab].key == "gtuan" then
                     RefreshQuickInput(HH_QuickInput)
                 end

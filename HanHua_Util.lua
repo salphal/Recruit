@@ -21,7 +21,7 @@ HH.SendColdTime            = 20
 HH.PREFIX_MAX              = (type(HH_config) == "table" and HH_config.prefix_max) or 40
 HH.MIDDLE_MAX              = (type(HH_config) == "table" and HH_config.middle_max) or 100
 HH.SUFFIX_MAX              = (type(HH_config) == "table" and HH_config.suffix_max) or 20
-HH.GTUAN_MAX               = (type(HH_config) == "table" and HH_config.gtuan_max) or 40
+HH.GTUAN_MAX               = (type(HH_config) == "table" and HH_config.important_max) or 40
 HH.TUANBU_MAX              = (type(HH_config) == "table" and HH_config.tuanbu_max) or 40
 HH.FRAME_WIDTH             = (type(HH_config) == "table" and HH_config.frame_width) or 325
 HH.FRAME_HEIGHT            = (type(HH_config) == "table" and HH_config.frame_height) or 360

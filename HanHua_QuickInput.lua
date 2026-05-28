@@ -6,9 +6,9 @@ if not HH_QuickInput then
     HH_QuickInput = {}
 end
 
--- gtuan: G团信息（分组展示，单选，和活动一样点击填入）
+-- gtuan: 重要信息（分组展示，单选，和活动一样点击填入）
 HH_QuickInput.gtuan = {
-    label = "G团",
+    label = "重要",
     groups = {
         {
             label = "通用",

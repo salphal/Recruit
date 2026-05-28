@@ -14,8 +14,8 @@ HH_config.middle_max = 150
 -- 后缀最大字符数 (默认: 20)
 HH_config.suffix_max = 100
 
--- G团信息最大字符数 (默认: 40)
-HH_config.gtuan_max = 40
+-- 重要信息最大字符数 (默认: 40)
+HH_config.important_max = 40
 
 -- 补充信息最大字符数 (默认: 40)
 HH_config.tuanbu_max = 40

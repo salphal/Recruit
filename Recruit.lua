@@ -1,8 +1,8 @@
--- HanHua.lua - 主入口 / 界面构建
--- 依赖: HanHua_Util, HanHua_Channels, HanHua_Send, HanHua_History, HanHua_QuickPanel
+-- Recruit.lua - 主入口 / 界面构建
+-- 依赖: Recruit_Util, Recruit_Channels, Recruit_Send, Recruit_History, Recruit_QuickPanel
 local AddonName, ADDONSELF = ...
 
-local function HanHuaUI()
+local function RecruitUI()
     HHdb = HHdb or {}
     if not HHdb.v110 then
         HHdb.channels = nil
@@ -94,7 +94,7 @@ local function HanHuaUI()
                     GameTooltip:AddLine(text, 1, .82, 0)
                 end
             else
-                GameTooltip:AddLine("喊话助手" .. HH.ver, 0, 1, 0)
+                GameTooltip:AddLine("Recruit喊话助手" .. HH.ver, 0, 1, 0)
                 GameTooltip:AddLine("左键：缩小插件", 1, .82, 0)
                 GameTooltip:AddLine("长按Shift：拖动位置", 1, .82, 0)
                 GameTooltip:AddLine("长按ALT：显示更新记录", 1, .82, 0)
@@ -553,7 +553,7 @@ local frameAL = CreateFrame("Frame")
 frameAL:RegisterEvent("ADDON_LOADED")
 frameAL:SetScript("OnEvent", function(self, event, addonName)
     if addonName == AddonName then
-        HanHuaUI()
+        RecruitUI()
     end
 end)
 

@@ -1,4 +1,4 @@
--- HanHua_QuickInput.lua
+-- Recruit_QuickInput.lua
 -- 快捷输入配置，JSON 风格的 Lua 表，方便修改
 -- 修改后 /reload 生效
 
@@ -157,7 +157,7 @@ HH_QuickInput.tuanbu = {
     },
 }
 
--- content: 职业招募（多选，按分组展示，勾选后用 "/" 拼接，前面加前缀 "来 "）
+-- content: 职业喊话（多选，按分组展示，勾选后用 "/" 拼接，前面加前缀 "来 "）
 HH_QuickInput.content = {
     label = "职业",
     prefix = "来 ",

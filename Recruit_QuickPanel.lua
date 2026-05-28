@@ -1,4 +1,4 @@
--- HanHua_QuickPanel.lua - 快捷输入面板 (tab切换 + 滚动)
+-- Recruit_QuickPanel.lua - 快捷输入面板 (tab切换 + 滚动)
 -- 依赖: HH (Util), HH_QuickInput, HHdb, HH.editPrefix/Middle/Suffix
 local AddonName, ADDONSELF = ...
 

@@ -1,4 +1,4 @@
--- HanHua_History.lua - 历史记录管理
+-- Recruit_History.lua - 历史记录管理
 -- 依赖: HH (Util), HHdb, HH.FrameHistory, HH.FrameEdit, HH.editPrefix/Middle/Suffix
 local AddonName, ADDONSELF = ...
 

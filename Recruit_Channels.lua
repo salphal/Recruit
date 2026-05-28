@@ -1,4 +1,4 @@
--- HanHua_Channels.lua - 频道管理
+-- Recruit_Channels.lua - 频道管理
 -- 依赖: HH (Util), HHdb, HH.Frame2, HH.button.send
 local AddonName, ADDONSELF = ...
 

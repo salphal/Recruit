@@ -1,5 +1,5 @@
--- HanHua_Util.lua - 工具函数和常量
--- 此文件必须在 HanHua.lua 之前加载
+-- Recruit_Util.lua - 工具函数和常量
+-- 此文件必须在 Recruit.lua 之前加载
 local AddonName, ADDONSELF = ...
 
 local pt                   = print
@@ -7,7 +7,7 @@ local GetAddOnMetadata     = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
 local IsAddOnLoaded        = IsAddOnLoaded or C_AddOns.IsAddOnLoaded
 local LoadAddOn            = LoadAddOn or C_AddOns.LoadAddOn
 
-BINDING_HEADER_HANHUA      = "HanHua喊话助手"
+BINDING_HEADER_RECRUIT     = "Recruit喊话助手"
 BINDING_NAME_FASONG        = "发送喊话"
 
 HH                         = {}
@@ -17,7 +17,7 @@ HH.sound1                  = SOUNDKIT.GS_TITLE_OPTION_OK
 HH.MAX_HISTORY             = 15
 HH.SendColdTime            = 20
 
--- 从 HanHua_Config.lua 读取配置, 无配置使用默认值
+-- 从 Recruit_Config.lua 读取配置, 无配置使用默认值
 HH.PREFIX_MAX              = (type(HH_config) == "table" and HH_config.prefix_max) or 40
 HH.MIDDLE_MAX              = (type(HH_config) == "table" and HH_config.middle_max) or 100
 HH.SUFFIX_MAX              = (type(HH_config) == "table" and HH_config.suffix_max) or 20

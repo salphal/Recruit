@@ -1,4 +1,4 @@
--- HanHua_Config.lua
+-- Recruit_Config.lua
 -- 喊话助手配置文件
 -- 修改配置后需 /reload 游戏使其生效
 -- 删除此文件将使用内置默认值

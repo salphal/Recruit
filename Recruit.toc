@@ -1,0 +1,14 @@
+## Interface: 11508, 20505, 30405, 38001 40402, 50503, 50504, 120000
+## Title: <Recruit> |cff00BFFF喊话助手|r
+## Author: 苍穹之霜
+## Version: 1.2.0
+## SavedVariables: HHdb
+
+Recruit_Config.lua
+Recruit_QuickInput.lua
+Recruit_Util.lua
+Recruit_Channels.lua
+Recruit_Send.lua
+Recruit_History.lua
+Recruit_QuickPanel.lua
+Recruit.lua

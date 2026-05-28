@@ -1,21 +1,21 @@
-# HanHua (喊话助手) — Agent Guide
+# Recruit (喊话助手) — Agent Guide
 
-Compact WoW addon: single-file chat helper for YELL + custom channel broadcasting, with optional MeetingHorn integration. Author: 苍穹之霜.
+Compact WoW addon: chat helper for YELL + custom channel broadcasting, with optional MeetingHorn integration. Author: 苍穹之霜.
 
 ## Repository
 
 ```
-HanHua.toc       # Manifest — Interface/Title/Version, saved var HHdb
-HanHua.lua       # ~530 lines — all logic, no XML, no libraries
-Bindings.xml     # Keybinding: FASONG → HH.Send()
-release.txt      # Changelog (Chinese). Keep updated.
+Recruit.toc       # Manifest — Interface/Title/Version, saved var HHdb
+Recruit.lua       # ~530 lines — all logic, no XML, no libraries
+Bindings.xml      # Keybinding: FASONG → HH.Send()
+release.txt       # Changelog (Chinese). Keep updated.
 ```
 
 No package manager, no build, no linter, no tests, one git commit. Testing = `/reload` in-game.
 
-## Architecture `HanHua.lua`
+## Architecture `Recruit.lua`
 
-**Entry—`ADDON_LOADED` → `HanHuaUI()`.** Builds all frames in Lua. No XML, no load-on-demand.
+**Entry—`ADDON_LOADED` → `RecruitUI()`.** Builds all frames in Lua. No XML, no load-on-demand.
 
 **Two globals:**
 - `HH` — API namespace (`HH.Send()`, `HH.UpdateChannel()`, `HH.UpdateHistoryList()`, font objects, button refs)
@@ -46,7 +46,7 @@ IsAddOnLoaded     → IsAddOnLoaded or C_AddOns.IsAddOnLoaded
 LoadAddOn         → LoadAddOn or C_AddOns.LoadAddOn
 ```
 
-**MeetingHorn integration** — soft coupling. If MeetingHorn loaded, `HH.Send()` writes the message to `LibStub("AceAddon-3.0"):GetAddon("MeetingHorn").MainPanel.Manage.Creator.Comment:SetText(text)`. Only re-publishes activity on text change (guarded by `lastText`). MeetingHorn must load *before* HanHua for the optional feature to work.
+**MeetingHorn integration** — soft coupling. If MeetingHorn loaded, `HH.Send()` writes the message to `LibStub("AceAddon-3.0"):GetAddon("MeetingHorn").MainPanel.Manage.Creator.Comment:SetText(text)`. Only re-publishes activity on text change (guarded by `lastText`). MeetingHorn must load *before* Recruit for the optional feature to work.
 
 **Fonts** — three custom fonts created at init: `HH.FontGreen1`, `HH.FontDisabled`, `HH.FontHilight` — all use `STANDARD_TEXT_FONT`, size 12, `"OUTLINE"`.
 
@@ -59,10 +59,10 @@ LoadAddOn         → LoadAddOn or C_AddOns.LoadAddOn
 5. **History** — `HH.MAX_HISTORY = 15`. Deduplicated at load and on insert. Right-click deletes.
 6. **Style** — 2-space indent, lowercase locals, uppercase globals. No formatter/linter config.
 7. **Chinese UI** — all user-facing strings in Chinese. System messages via `SendSystemMessage`, not `DEFAULT_CHAT_FRAME`.
-8. **Globals** — `HH`, `HHdb`, `BINDING_HEADER_HANHUA`, `BINDING_NAME_FASONG` are intentionally global (addon convention).
+8. **Globals** — `HH`, `HHdb`, `BINDING_HEADER_RECRUIT`, `BINDING_NAME_FASONG` are intentionally global (addon convention).
 9. **Channel filter** — `GetChannelList()` filtered to exclude "MeetingHorn" and "BiaoGeYY" channels.
 
 ## Commands
 
 - `/fasong` → `HH.Send()`
-- Keybinding: Setting → "HanHua喊话助手" → "发送喊话" (key name `FASONG`)
+- Keybinding: Setting → "Recruit喊话助手" → "发送喊话" (key name `FASONG`)

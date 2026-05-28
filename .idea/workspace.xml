@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7c0e7a13-868d-44b9-8079-1395d1b495bc" name="Changes" comment="feat: v1.3.4 &#10;update readme">
+      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Recruit.toc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua.toc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_Channels.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_Channels.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_Config.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_Config.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_History.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_History.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_QuickInput.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_QuickInput.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_QuickPanel.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_QuickPanel.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_Send.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_Send.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HanHua_Util.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Recruit_Util.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/release.txt" beforeDir="false" afterPath="$PROJECT_DIR$/release.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Applications/World of Warcraft/_classic_titan_/Interface/AddOns/HanHua" value="3EKgQYedhlJIpHsak72RNf4TIaz" />
+      <entry key="_/Applications/World of Warcraft/_classic_titan_/Interface/AddOns/Recruit" value="3ELVSmPLzbZvKliEjoSwrkzzuoe" />
+    </persistenceIdMap>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;salphal&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:salphal/wow-recruit.git&quot;,
+    &quot;accountId&quot;: &quot;a1891e62-2866-4650-8f6a-53513cbea89a&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3EKgQYedhlJIpHsak72RNf4TIaz" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="openDirectoriesWithSingleClick" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+    <option name="showScratchesAndConsoles" value="false" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "javascript.preferred.runtime.type.id": "node",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-3bd3a6803838-JavaScript-WS-261.22158.274" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7c0e7a13-868d-44b9-8079-1395d1b495bc" name="Changes" comment="" />
+      <created>1779932659927</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1779932659927</updated>
+    </task>
+    <task id="LOCAL-00001" summary="feat: init">
+      <option name="closed" value="true" />
+      <created>1779934896251</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1779934896251</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat: add ignore">
+      <option name="closed" value="true" />
+      <created>1779935108884</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1779935108884</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat: add init instruction">
+      <option name="closed" value="true" />
+      <created>1779935132545</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1779935132545</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat: add clear &amp; auto">
+      <option name="closed" value="true" />
+      <created>1779936814819</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1779936814819</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: add clear &amp; auto">
+      <option name="closed" value="true" />
+      <created>1779936847162</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1779936847162</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat: update content to multi section">
+      <option name="closed" value="true" />
+      <created>1779940075637</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1779940075637</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat: v1.0.0">
+      <option name="closed" value="true" />
+      <created>1779944592944</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1779944592944</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat: update config">
+      <option name="closed" value="true" />
+      <created>1779944789293</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1779944789293</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat: v1.0.1">
+      <option name="closed" value="true" />
+      <created>1779946231341</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1779946231341</updated>
+    </task>
+    <task id="LOCAL-00010" summary="feat: v1.0.2">
+      <option name="closed" value="true" />
+      <created>1779946540556</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1779946540556</updated>
+    </task>
+    <task id="LOCAL-00011" summary="feat: v1.0.3">
+      <option name="closed" value="true" />
+      <created>1779947425279</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1779947425279</updated>
+    </task>
+    <task id="LOCAL-00012" summary="feat: v1.1.0">
+      <option name="closed" value="true" />
+      <created>1779949535156</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1779949535156</updated>
+    </task>
+    <task id="LOCAL-00013" summary="feat: v1.2.0">
+      <option name="closed" value="true" />
+      <created>1779949928851</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1779949928851</updated>
+    </task>
+    <task id="LOCAL-00014" summary="feat: v1.3.0">
+      <option name="closed" value="true" />
+      <created>1779952199711</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1779952199711</updated>
+    </task>
+    <task id="LOCAL-00015" summary="feat: v1.3.1">
+      <option name="closed" value="true" />
+      <created>1779954139333</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1779954139333</updated>
+    </task>
+    <task id="LOCAL-00016" summary="feat: v1.3.2">
+      <option name="closed" value="true" />
+      <created>1779955383344</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1779955383344</updated>
+    </task>
+    <task id="LOCAL-00017" summary="feat: v1.3.2">
+      <option name="closed" value="true" />
+      <created>1779955387760</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1779955387760</updated>
+    </task>
+    <task id="LOCAL-00018" summary="feat: v1.3.3">
+      <option name="closed" value="true" />
+      <created>1779957226290</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1779957226290</updated>
+    </task>
+    <task id="LOCAL-00019" summary="feat: v1.3.4 &#10;update readme">
+      <option name="closed" value="true" />
+      <created>1779957502597</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1779957502597</updated>
+    </task>
+    <task id="LOCAL-00020" summary="feat: v1.3.4 &#10;update readme">
+      <option name="closed" value="true" />
+      <created>1779957511203</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1779957511203</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: init" />
+    <MESSAGE value="feat: add ignore" />
+    <MESSAGE value="feat: add init instruction" />
+    <MESSAGE value="feat: add clear &amp; auto" />
+    <MESSAGE value="feat: update content to multi section" />
+    <MESSAGE value="feat: v1.0.0" />
+    <MESSAGE value="feat: update config" />
+    <MESSAGE value="feat: v1.0.1" />
+    <MESSAGE value="feat: v1.0.2" />
+    <MESSAGE value="feat: v1.0.3" />
+    <MESSAGE value="feat: v1.1.0" />
+    <MESSAGE value="feat: v1.2.0" />
+    <MESSAGE value="feat: v1.3.0" />
+    <MESSAGE value="feat: v1.3.1" />
+    <MESSAGE value="feat: v1.3.2" />
+    <MESSAGE value="feat: v1.3.3" />
+    <MESSAGE value="feat: v1.3.4 &#10;update readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: v1.3.4 &#10;update readme" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

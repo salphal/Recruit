@@ -1,4 +1,4 @@
--- HanHua_Send.lua - 发送逻辑
+-- Recruit_Send.lua - 发送逻辑
 -- 依赖: HH (Util), HHdb, HH.editPrefix/Middle/Suffix, HH.button.send, HH.UpdateHistoryList
 local AddonName, ADDONSELF = ...
 

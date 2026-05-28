@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="FASONG" header="HANHUA" Category="ADDONS">
+    HH.Send()
+  </Binding>
+</Bindings>

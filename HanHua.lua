@@ -17,6 +17,7 @@ local function HanHuaUI()
     HHdb.editMiddle = HHdb.editMiddle or ""
     HHdb.editSuffix = HHdb.editSuffix or ""
     HHdb.savedTemplates = HHdb.savedTemplates or {}
+    HHdb.savedGtuanTemplates = HHdb.savedGtuanTemplates or {}
     HHdb.hiddenTemplates = HHdb.hiddenTemplates or {}
     -- 从旧版单输入框迁移
     if HHdb.edit and HHdb.edit ~= "" and HHdb.editMiddle == "" then
@@ -365,8 +366,33 @@ local function HanHuaUI()
 
         local last = previewContent
         last = MakeEditBox(last, "G团信息", "editGtuan", HH.GTUAN_MAX, "editGtuan", 1)
+        -- 保存G团模版按钮
+        do
+            local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
+            btn:SetSize(60, 14)
+            btn:SetText("存模版")
+            btn:SetPoint("LEFT", HH.editGtuan._label, "RIGHT", 4, 0)
+            btn:SetScript("OnClick", function()
+                local text = HH.editGtuan:GetText()
+                if text == "" then
+                    SendSystemMessage("G团信息为空，无法保存")
+                    return
+                end
+                for _, t in ipairs(HHdb.savedGtuanTemplates) do
+                    if t == text then
+                        SendSystemMessage("该模版已存在")
+                        return
+                    end
+                end
+                tinsert(HHdb.savedGtuanTemplates, text)
+                SendSystemMessage("已保存G团模版: " .. text)
+                if HH.activeTab and HH.tabDefs and HH.tabDefs[HH.activeTab] and HH.tabDefs[HH.activeTab].key == "gtuan" then
+                    RefreshQuickInput(HH_QuickInput)
+                end
+            end)
+        end
         last = MakeEditBox(last, "活动", "editPrefix", HH.PREFIX_MAX, "editPrefix", 2)
-        -- 保存为模版按钮
+        -- 保存活动模版按钮
         do
             local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
             btn:SetSize(60, 14)

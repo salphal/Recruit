@@ -96,6 +96,13 @@ function RefreshQuickInput(qi)
             del:SetScript("OnClick", function()
                 if source == "builtin" then
                     HHdb.hiddenTemplates[opt] = true
+                elseif def.key == "gtuan" then
+                    for i, t in ipairs(HHdb.savedGtuanTemplates) do
+                        if t == opt then
+                            tremove(HHdb.savedGtuanTemplates, i)
+                            break
+                        end
+                    end
                 else
                     for i, t in ipairs(HHdb.savedTemplates) do
                         if t == opt then
@@ -116,13 +123,26 @@ function RefreshQuickInput(qi)
             y = y - yRow
         end
 
-        -- 内置分组 (如 P1/P2/P3)
+        -- 分组渲染 (如果某组 label 是 "通用", 动态追加已保存的模版)
         if data.groups then
+            local savedLookup = {}
+            if def.key == "gtuan" then
+                for _, v in ipairs(HHdb.savedGtuanTemplates or {}) do savedLookup[v] = true end
+            else
+                for _, v in ipairs(HHdb.savedTemplates or {}) do savedLookup[v] = true end
+            end
             for _, group in ipairs(data.groups) do
                 local visible = {}
                 for _, opt in ipairs(group.options) do
                     if not hidden[opt] then
                         tinsert(visible, opt)
+                    end
+                end
+                if group.label == "通用" then
+                    for _, v in ipairs(def.key == "gtuan" and HHdb.savedGtuanTemplates or HHdb.savedTemplates or {}) do
+                        if not hidden[v] then
+                            tinsert(visible, v)
+                        end
                     end
                 end
                 if #visible > 0 then
@@ -134,24 +154,17 @@ function RefreshQuickInput(qi)
                     header:SetTextColor(1, 0.82, 0)
                     y = y - yRow
                     for _, opt in ipairs(visible) do
-                        renderItem(opt, "builtin")
+                        renderItem(opt, savedLookup[opt] and "saved" or "builtin")
                     end
                     y = y - 4
                 end
             end
         else
-            -- 旧版平铺模式
+            -- 旧版平铺模式 (无 groups 时)
             for _, opt in ipairs(data.options) do
                 if not hidden[opt] then
                     renderItem(opt, "builtin")
                 end
-            end
-        end
-
-        -- 用户保存的模版
-        for _, opt in ipairs(HHdb.savedTemplates or {}) do
-            if not hidden[opt] then
-                renderItem(opt, "saved")
             end
         end
     elseif def.key == "content" or def.key == "suffix" or def.key == "tuanbu" then

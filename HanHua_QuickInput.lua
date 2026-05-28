@@ -50,6 +50,11 @@ HH_QuickInput.prefix = {
     label = "活动",
     groups = {
         {
+            label = "通用",
+            options = {
+            },
+        },
+        {
             label = "P1",
             options = {
                 'MC全通百元团',
@@ -90,6 +95,9 @@ HH_QuickInput.tuanbu = {
                 "RTN3",
                 "RTN2",
                 "RTN1",
+                "出橙RTN1",
+                "出橙RTN2",
+                "出橙R2TN1",
             },
         },
         {

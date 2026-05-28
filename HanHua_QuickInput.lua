@@ -2,7 +2,48 @@
 -- 快捷输入配置，JSON 风格的 Lua 表，方便修改
 -- 修改后 /reload 生效
 
-if not HH_QuickInput then HH_QuickInput = {} end
+if not HH_QuickInput then
+    HH_QuickInput = {}
+end
+
+-- gtuan: G团信息（分组展示，单选，和活动一样点击填入）
+HH_QuickInput.gtuan = {
+    label = "G团",
+    groups = {
+        {
+            label = "通用",
+            options = {
+                '项链升级可包',
+                '橙锤升级可包',
+                '风剑升级可包',
+                '橙匕升级可包',
+                '橙杖升级可包',
+            },
+        },
+        {
+            label = "P1",
+            options = {
+                '锭可包',
+                '眼可包',
+                '项链可包',
+                '锭眼项链可包',
+            },
+        },
+        {
+            label = "P2",
+            options = {
+                '风剑可包',
+                '片可包',
+            },
+        },
+        {
+            label = "P3",
+            options = {
+                '橙匕可包',
+            },
+        },
+    },
+}
 
 -- prefix: 活动（开团副本信息，按阶段分组展示）
 HH_QuickInput.prefix = {
@@ -29,6 +70,41 @@ HH_QuickInput.prefix = {
             label = "P3",
             options = {
                 'TOC+ZUG百元团',
+            },
+        },
+    },
+}
+
+-- tuanbu: 团补信息（分组展示，多选，和职业/备注一样勾选拼接）
+HH_QuickInput.tuanbu = {
+    label = "团补",
+    prefix = "团补:",
+    groups = {
+        {
+            label = "通用",
+            options = {
+                "RT5N4",
+                "RT4N3",
+                "RT3N2",
+                "RTN4",
+                "RTN3",
+                "RTN2",
+                "RTN1",
+            },
+        },
+        {
+            label = "DPS",
+            options = {
+                "远近543",
+                "远近432",
+                "远近321",
+            },
+        },
+        {
+            label = "特殊",
+            options = {
+                "特殊1",
+                "鱼1",
             },
         },
     },
@@ -120,22 +196,6 @@ HH_QuickInput.suffix = {
             },
         },
         {
-            label = "可包",
-            options = {
-                "锭可包",
-                "眼可包",
-                "项链可包",
-                "锭眼可包",
-                "锭眼项链可包",
-                "项链升级可包",
-                "风剑可包",
-                "风剑升级可包",
-                "片可包",
-                "橙杖升级可包",
-                "橙匕可包",
-            },
-        },
-        {
             label = "价格",
             options = {
                 "2.5w锅",
@@ -145,11 +205,11 @@ HH_QuickInput.suffix = {
             },
         },
         {
-            label = "特殊",
+            label = "通用",
             options = {
-                "鱼1",
-                "特殊1",
+                "报职天赋M",
             },
         },
     },
 }
+

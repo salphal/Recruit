@@ -14,11 +14,17 @@ HH_config.middle_max = 150
 -- 后缀最大字符数 (默认: 20)
 HH_config.suffix_max = 100
 
+-- G团信息最大字符数 (默认: 40)
+HH_config.gtuan_max = 40
+
+-- 团补信息最大字符数 (默认: 40)
+HH_config.tuanbu_max = 40
+
 -- 输入框宽度 (默认: 325)
 HH_config.frame_width = 325
 
--- 输入框高度 (默认: 260)
-HH_config.frame_height = 260
+-- 输入框高度 (默认: 310)
+HH_config.frame_height = 310
 
 -- 底部快捷输入面板高度 (默认: 400)
 HH_config.qi_height = 400

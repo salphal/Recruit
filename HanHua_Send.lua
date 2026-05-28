@@ -7,7 +7,7 @@ function HH.Send()
     local bt = HH.button.send
     if not bt:IsEnabled() then return end
     if not next(HHdb.channels) then return end
-    local text = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText())
+    local text = (HH.editGtuan:GetText() .. "-" .. HH.editPrefix:GetText() .. "-" .. HH.editTuanbu:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText())
         :match("^%-*(.-)%-*$"):gsub("%-+", "-")
     if text == "" then
         SendSystemMessage("当前喊话内容为空")
@@ -41,10 +41,10 @@ function HH.Send()
         end)
     end
 
-    local historyItem = { p = HH.editPrefix:GetText(), m = HH.editMiddle:GetText(), s = HH.editSuffix:GetText() }
+    local historyItem = { g = HH.editGtuan:GetText(), p = HH.editPrefix:GetText(), t = HH.editTuanbu:GetText(), m = HH.editMiddle:GetText(), s = HH.editSuffix:GetText() }
     local isNewText = true
     for _, entry in ipairs(HHdb.history) do
-        local et = type(entry) == "table" and (entry.p or "") .. (entry.m or "") .. (entry.s or "") or entry
+        local et = type(entry) == "table" and (entry.g or "") .. (entry.p or "") .. (entry.t or "") .. (entry.m or "") .. (entry.s or "") or entry
         if et == text then
             isNewText = false
             break
@@ -59,7 +59,9 @@ function HH.Send()
         end
     end
     HH.UpdateHistoryList()
+    HH.editGtuan:ClearFocus()
     HH.editPrefix:ClearFocus()
+    HH.editTuanbu:ClearFocus()
     HH.editMiddle:ClearFocus()
     HH.editSuffix:ClearFocus()
     PlaySound(HH.sound1)

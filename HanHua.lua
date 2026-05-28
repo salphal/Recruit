@@ -11,7 +11,9 @@ local function HanHuaUI()
     HHdb.channels = HHdb.channels or {}
     HHdb.history = HHdb.history or {}
     HHdb.auto = HHdb.auto or false
+    HHdb.editGtuan = HHdb.editGtuan or ""
     HHdb.editPrefix = HHdb.editPrefix or ""
+    HHdb.editTuanbu = HHdb.editTuanbu or ""
     HHdb.editMiddle = HHdb.editMiddle or ""
     HHdb.editSuffix = HHdb.editSuffix or ""
     HHdb.savedTemplates = HHdb.savedTemplates or {}
@@ -141,10 +143,14 @@ local function HanHuaUI()
             bt:SetText("清空内容")
             bt:SetClampedToScreen(true)
             bt:SetScript("OnClick", function()
+                HH.editGtuan:SetText("")
                 HH.editPrefix:SetText("")
+                HH.editTuanbu:SetText("")
                 HH.editMiddle:SetText("")
                 HH.editSuffix:SetText("")
+                HHdb.editGtuan = ""
                 HHdb.editPrefix = ""
+                HHdb.editTuanbu = ""
                 HHdb.editMiddle = ""
                 HHdb.editSuffix = ""
                 if HH.ClearQuickInput then HH.ClearQuickInput() end
@@ -264,8 +270,8 @@ local function HanHuaUI()
         previewContent:SetNonSpaceWrap(true)
 
         local function UpdatePreview()
-            if not HH.editPrefix or not HH.editMiddle or not HH.editSuffix then return end
-            local t = (HH.editPrefix:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText()):match("^%-*(.-)%-*$"):gsub("%-+", "-")
+            if not HH.editGtuan or not HH.editPrefix or not HH.editTuanbu or not HH.editMiddle or not HH.editSuffix then return end
+            local t = (HH.editGtuan:GetText() .. "-" .. HH.editPrefix:GetText() .. "-" .. HH.editTuanbu:GetText() .. "-" .. HH.editMiddle:GetText() .. "-" .. HH.editSuffix:GetText()):match("^%-*(.-)%-*$"):gsub("%-+", "-")
             previewContent:SetText(t)
             previewLabel:SetText("最终:(" .. #t .. ")")
         end
@@ -322,13 +328,14 @@ local function HanHuaUI()
         end
 
         local last = previewContent
+        last = MakeEditBox(last, "G团信息", "editGtuan", HH.GTUAN_MAX, "editGtuan", 1)
         last = MakeEditBox(last, "活动", "editPrefix", HH.PREFIX_MAX, "editPrefix", 2)
         -- 保存为模版按钮
         do
             local btn = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
             btn:SetSize(60, 14)
             btn:SetText("存模版")
-            btn:SetPoint("LEFT", last._label, "RIGHT", 4, 0)
+            btn:SetPoint("LEFT", HH.editPrefix._label, "RIGHT", 4, 0)
             btn:SetScript("OnClick", function()
                 local text = HH.editPrefix:GetText()
                 if text == "" then
@@ -348,11 +355,12 @@ local function HanHuaUI()
                 end
             end)
         end
+        last = MakeEditBox(last, "团补信息", "editTuanbu", HH.TUANBU_MAX, "editTuanbu", 1)
         last = MakeEditBox(last, "职业", "editMiddle", HH.MIDDLE_MAX, "editMiddle", 4)
         last = MakeEditBox(last, "备注", "editSuffix", HH.SUFFIX_MAX, "editSuffix", 2)
 
         f:SetScript("OnMouseDown", function(self)
-            HH.editMiddle:SetFocus()
+            HH.editGtuan:SetFocus()
         end)
 
         UpdatePreview()
@@ -377,7 +385,7 @@ local function HanHuaUI()
     end)
 
     hooksecurefunc('QuestLogTitleButton_OnClick', function(self)
-        if HH.editPrefix:HasFocus() or HH.editMiddle:HasFocus() or HH.editSuffix:HasFocus() then
+        if HH.editGtuan:HasFocus() or HH.editPrefix:HasFocus() or HH.editTuanbu:HasFocus() or HH.editMiddle:HasFocus() or HH.editSuffix:HasFocus() then
             local questName = self:GetText();
             local questIndex = self:GetID() + FauxScrollFrame_GetOffset(QuestLogListScrollFrame);
             if (IsShiftKeyDown()) then

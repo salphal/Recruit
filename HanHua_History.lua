@@ -28,11 +28,15 @@ function HH.UpdateHistoryList()
                 local entry = HHdb.history[i]
                 if entry then
                     if type(entry) == "table" then
+                        HH.editGtuan:SetText(entry.g or "")
                         HH.editPrefix:SetText(entry.p or "")
+                        HH.editTuanbu:SetText(entry.t or "")
                         HH.editMiddle:SetText(entry.m or "")
                         HH.editSuffix:SetText(entry.s or "")
                     elseif entry ~= "" then
+                        HH.editGtuan:SetText("")
                         HH.editPrefix:SetText("")
+                        HH.editTuanbu:SetText("")
                         HH.editMiddle:SetText(entry)
                         HH.editSuffix:SetText("")
                     end
@@ -49,7 +53,7 @@ function HH.UpdateHistoryList()
         text:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
         local entry = HHdb.history[i]
         local displayText = type(entry) == "table"
-            and (entry.p or "") .. (entry.m or "") .. (entry.s or "")
+            and (entry.g or "") .. (entry.p or "") .. (entry.t or "") .. (entry.m or "") .. (entry.s or "")
             or entry or ""
         text:SetText(displayText)
     end

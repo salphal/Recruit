@@ -4,18 +4,24 @@ local AddonName, ADDONSELF = ...
 
 HH.activeTab = 1
 HH.tabDefs = {
+    { key = "gtuan",   name = "G团" },
     { key = "prefix",  name = "活动" },
+    { key = "tuanbu",  name = "团补" },
     { key = "content", name = "职业" },
     { key = "suffix",  name = "备注" },
 }
 HH.contentChecked = {}
 HH.suffixChecked = {}
+HH.gtuanChecked = {}
+HH.tuanbuChecked = {}
 HH.createdWidgets = {}
 
 -- 暴露给外部 (清空按钮等) 调用
 function HH.ClearQuickInput()
     for k in pairs(HH.contentChecked) do HH.contentChecked[k] = nil end
     for k in pairs(HH.suffixChecked) do HH.suffixChecked[k] = nil end
+    for k in pairs(HH.gtuanChecked) do HH.gtuanChecked[k] = nil end
+    for k in pairs(HH.tuanbuChecked) do HH.tuanbuChecked[k] = nil end
     RefreshQuickInput(HH_QuickInput)
 end
 
@@ -43,7 +49,7 @@ function RefreshQuickInput(qi)
     meas:SetFont(STANDARD_TEXT_FONT, 12)
     local cw = scrollChild:GetWidth()
 
-    if def.key == "prefix" then
+    if def.key == "prefix" or def.key == "gtuan" then
         local hidden = HHdb.hiddenTemplates or {}
         local delBtnW = 16
         local btnW = cw - xStart * 2 - delBtnW - 2
@@ -69,7 +75,8 @@ function RefreshQuickInput(qi)
             txt:SetText(displayText)
             txt:SetTextColor(1, 1, 1)
             bt:SetScript("OnClick", function()
-                HH.editPrefix:SetText(opt)
+                local target = def.key == "gtuan" and HH.editGtuan or HH.editPrefix
+                target:SetText(opt)
             end)
             bt:SetScript("OnEnter", function(self)
                 GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT")
@@ -147,10 +154,10 @@ function RefreshQuickInput(qi)
                 renderItem(opt, "saved")
             end
         end
-    elseif def.key == "content" or def.key == "suffix" then
-        -- 职业 / 备注: 按分组展示复选框网格
-        local checkedTbl = def.key == "content" and HH.contentChecked or HH.suffixChecked
-        local editBox = def.key == "content" and HH.editMiddle or HH.editSuffix
+    elseif def.key == "content" or def.key == "suffix" or def.key == "tuanbu" then
+        -- 职业 / 备注 / 团补: 按分组展示复选框网格
+        local checkedTbl = def.key == "content" and HH.contentChecked or (def.key == "suffix" and HH.suffixChecked or HH.tuanbuChecked)
+        local editBox = def.key == "content" and HH.editMiddle or (def.key == "suffix" and HH.editSuffix or HH.editTuanbu)
         local prefix = (def.key == "content" and data.prefix) or ""
 
         local function renderOptions(optList, yOffset)

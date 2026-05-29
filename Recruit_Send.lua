@@ -17,13 +17,9 @@ function HH.Send()
     for _, v in pairs(HHdb.channels) do
         if v.join then
             if v.yell then
-                C_Timer.After(0, function()
-                    SendChatMessage(text, "YELL")
-                end)
+                SendChatMessage(text, "YELL")
             else
-                C_Timer.After(0, function()
-                    SendChatMessage(text, "CHANNEL", nil, v.channelID)
-                end)
+                SendChatMessage(text, "CHANNEL", nil, v.channelID)
             end
             hasChannel = true
         end

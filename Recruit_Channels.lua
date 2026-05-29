@@ -138,8 +138,8 @@ end
 local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("CHANNEL_UI_UPDATE")
-f:SetScript("OnEvent", function()
-    -- 直接从事件回调调用 (安全上下文), 无需 C_Timer.After
-    -- C_Timer / OnUpdate 运行在不安全上下文, 内部 SetChecked 会触发 taint
-    HH.UpdateChannel()
+f:SetScript("OnEvent", function(self, even, ...)
+    C_Timer.After(0.5, function()
+        HH.UpdateChannel()
+    end)
 end)

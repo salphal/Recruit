@@ -15,10 +15,10 @@ HH_config.middle_max = 150
 HH_config.suffix_max = 100
 
 -- 重要信息最大字符数 (默认: 40)
-HH_config.important_max = 40
+HH_config.important_max = 100
 
 -- 补充信息最大字符数 (默认: 40)
-HH_config.tuanbu_max = 40
+HH_config.tuanbu_max = 100
 
 -- 输入框宽度 (默认: 325)
 HH_config.frame_width = 325

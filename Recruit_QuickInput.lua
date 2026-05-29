@@ -166,14 +166,14 @@ HH_QuickInput.content = {
             label = "通用",
             options = {
                 "ZS",  -- 战士                                                                                                                                                   █
-                "DK",  -- 死亡骑士                                                                                                            Magic Context             v0.21.8  █
-                "DZ",  -- 盗贼                                                                                                                                                   █
-                "LR",  -- 猎人                                                                                                               32.5% / 65%            325K / 1.0M
+                "DK",  -- 死亡骑士
+                "DZ",  -- 盗贼
+                "LR",  -- 猎人
                 "FS",  -- 法师
-                "MS",  -- 牧师                                                                                                               System                    11K (3%)
-                "SM",  -- 萨满                                                                                                               Conversation            103K (32%)
-                "QS",  -- 圣骑士                                                                                                             Tool Calls              193K (59%)
-                "XD",  -- 德鲁伊                                                                                                             Tool Defs                 19K (6%)
+                "MS",  -- 牧师
+                "SM",  -- 萨满
+                "QS",  -- 圣骑士
+                "XD",  -- 德鲁伊
                 "SS",  -- 术士
             },
         },

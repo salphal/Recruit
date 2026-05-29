@@ -161,7 +161,7 @@ HH_QuickInput.tuanbu = {
 -- content: 职业喊话（多选，按分组展示，勾选后用 "/" 拼接，前面加前缀 "来 "）
 HH_QuickInput.content = {
     label = "职业",
-    prefix = "来 ",
+    prefix = "来",
     groups = {
         {
             label = "通用",

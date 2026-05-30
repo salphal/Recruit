@@ -66,6 +66,8 @@ HH_QuickInput.gtuan = {
                 '锭眼项链可包',
                 '锭3k眼1.5项链2w已包',
                 '锭3k眼1.6项链2.2w已包',
+                '风剑/橙锤/项链可包',
+                '风剑5k橙锤5k项链5k已包',
             },
         },
     },
@@ -96,6 +98,7 @@ HH_QuickInput.prefix = {
             label = "P3",
             options = {
                 'NAXX双龙百元团',
+                'NAXX+双龙摸奖(堕落+3个升级材料BOSS)',
             },
         },
         {
